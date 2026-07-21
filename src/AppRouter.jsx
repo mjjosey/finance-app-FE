@@ -1,10 +1,10 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Typography from '@mui/material/Typography';
-import Items from './pages/Items';
-import Customers from './pages/Customers';
-import Suppliers from './pages/Suppliers';
-import Sales from './pages/Sales';
+import Items from './pages/Items/Items';
+import Customers from './pages/customers/Customers';
+import Suppliers from './pages/suppliers/Suppliers';
+import Sales from './pages/sales/Sales';
 import Purchases from './pages/Purchases';
 import Payments from './pages/Payments';
 import Receipts from './pages/Receipts';

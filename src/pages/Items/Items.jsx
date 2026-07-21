@@ -1,38 +1,27 @@
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Alert, Box, Button, Grid, Paper, Snackbar, Stack, Typography } from '@mui/material';
-import SaveIcon from '@mui/icons-material/Save';
-import CloseIcon from '@mui/icons-material/Close';
-import RhfTextField from '../components/RhfTextField';
-import { itemHeaders } from '../constants';
-import ListingTemplate from '../listing/ListingTemplate';
-import api from '../api/axios';
-import { useThemeMode } from '../ThemeProvider';
+import { Alert, Snackbar } from '@mui/material';
+
+import { itemHeaders } from '../../constants';
+import ListingTemplate from '../../listing/ListingTemplate';
+import api from '../../api/axios';
+import { useThemeMode } from '../../ThemeProvider';
+import AddItem from './addItem';
 
 export default function Items() {
-  const { control, handleSubmit, reset } = useForm({
-    defaultValues: {
-      itemName: '',
-      price: '',
-    },
-  });
-
   const [items, setItems] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
-  const { mode, toggleThemeMode } = useThemeMode();
+  const { mode } = useThemeMode();
   const isDark = mode === 'dark';
-  const surfaceColor = isDark ? '#121212' : '#ffffff';
-  const borderColor = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)';
-  const textColor = isDark ? '#ffffff' : '#111111';
-  const mutedText = isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)';
   const fetchItems = async (pageNumber = 0, pageSize = 5, sortBy = 'itemName', sortOrder = 'asc') => {
     try {
       setLoading(true);
@@ -116,7 +105,6 @@ export default function Items() {
 
       setSnackbarMessage(selectedItem ? 'Item updated successfully.' : 'Item added successfully.');
       setSnackbarOpen(true);
-      reset({ itemName: '', price: '' });
       setSelectedItem(null);
       setShowAddForm(false);
     } catch (err) {
@@ -129,17 +117,12 @@ export default function Items() {
 
   const handleOpenAddForm = () => {
     setSelectedItem(null);
-    reset({ itemName: '', price: '' });
     setShowAddForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleViewItem = (item) => {
     setSelectedItem(item);
-    reset({
-      itemName: item?.itemName ?? item?.name ?? '',
-      price: item?.price ?? item?.Price ?? '',
-    });
     setShowAddForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -148,7 +131,6 @@ export default function Items() {
     setSelectedItem(null);
     setShowAddForm(false);
     setSubmitError('');
-    reset({ itemName: '', price: '' });
   };
 
   const handleDeleteItem = async (item) => {
@@ -174,8 +156,8 @@ export default function Items() {
         
         const payload = response?.data?.content ??  [];
         const normalizedItems = Array.isArray(payload) ? payload : [];
-        setCount(response?.data?.totalElements ?? 0);
-        setElements(
+        setTotalItems(response?.data?.totalElements ?? 0);
+        setItems(
           normalizedItems.map((item) => ({
             ...item,
             itemName: item.itemName,
@@ -198,8 +180,8 @@ export default function Items() {
         
         const payload = response?.data?.content ??  [];
         const normalizedItems = Array.isArray(payload) ? payload : [];
-         setCount(response?.data?.totalElements ?? 0);
-        setElements(
+         setTotalItems(response?.data?.totalElements ?? 0);
+        setItems(
           normalizedItems.map((item) => ({
             ...item,
             itemName: item.itemName,
@@ -214,66 +196,20 @@ export default function Items() {
   return (
       <>
       {showAddForm && (
-          <Box sx={{ bgcolor: isDark ? '#0f172a' : '#f8fafc', p: 2, borderRadius: 2 }}>
-        <Paper elevation={1} sx={{ p: 2, mb: 2, bgcolor: surfaceColor, border: `1px solid ${borderColor}` }}>
-  <Grid container spacing={2} rowSpacing={3} component="form" onSubmit={handleSubmit(onSubmit)}>
-    
-    <Grid size={{ xs: 12, md: 6 }}>
-    </Grid>
-    <Grid size={{ xs: 12, md: 4 }}></Grid> 
-    <Grid size={{ xs: 12, md: 2 }} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
-      <Button 
-        variant="text" 
-        color="inherit" 
-        startIcon={<CloseIcon />} 
-        onClick={handleCloseAddForm}
-        sx={{border:"3px solid red"}}
-      >
-        Close
-      </Button>
-    </Grid>
-    <Grid size={{ xs: 12, md: 6 }}>
-      <RhfTextField name="itemName" control={control} label="Item Name" required fullWidth />
-    </Grid>
-    
-    <Grid size={{ xs: 12, md: 6 }}>
-      <RhfTextField
-        name="price"
-        control={control}
-        label="Price"
-        type="number"
-        required
-        fullWidth
-      />
-    </Grid>
-    
-    <Grid size={{ xs: 12 }}>
-      <Button type="submit" variant="contained" startIcon={<SaveIcon />} disabled={submitting} sx={{ minWidth: 150, mt: 1 }}>
-        {submitting ? 'Saving...' : selectedItem ? 'Update Item' : 'Save Item'}
-      </Button>
-    </Grid>
-    {submitError ? (
-      <Grid size={{ xs: 12 }}>
-        <Typography color="error" variant="body2">
-          {submitError}
-        </Typography>
-      </Grid>
-    ) : null}
-  </Grid>   
-</Paper>
-
-      </Box>
+          <AddItem onSubmit={onSubmit} submitting={submitting} submitError={submitError} onClose={handleCloseAddForm} selectedItem={selectedItem} />
       ) }
 
       <ListingTemplate
         headers={itemHeaders}
         rows={items}
         count={totalItems}
-        setCount={setTotalItems}
         pageName="Item"
+        page={page}
+        rowsPerPage={rowsPerPage}
+        setRowsPerPage={setRowsPerPage}
+        setPage={setPage}
         handleChangePage={handleChangePage}
         handleChangeRowsPerPage={handleChangeRowsPerPage}
-        setElements={setItems}
         onAdd={handleOpenAddForm}
         onView={handleViewItem}
         onDelete={handleDeleteItem}

@@ -34,10 +34,12 @@ export default function ListingTemplate({
   title,
   headers = [],
   pageName,
-  setElements = () => {},
+  page,
+  setPage,
+  rowsPerPage,
+  setRowsPerPage,
   handleChangePage,
   handleChangeRowsPerPage,
-  setCount,
   rows = [],
   onAdd,
   onView,
@@ -50,10 +52,7 @@ export default function ListingTemplate({
   const borderColor = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)';
   const textColor = isDark ? '#ffffff' : '#111111';
   const mutedText = isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)';
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const safePage = Math.min(page, Math.max(0, count - 1));
-  const visibleRows = rows.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
+
   const defaultRowsPerPageOptions = [5,15, 25, 50, 100];
   const defaultRowsPerPage = 5;
 
@@ -80,7 +79,7 @@ export default function ListingTemplate({
           </Stack>
           <Stack direction="row" spacing={1}  sx={{alignItems:"center"}}>
             <Typography variant="body2" sx={{ color: mutedText }}>
-              Total: {count} {pageName} {count !== 1 ? 's' : ''}
+              Total: {count} {pageName}{count !== 1 ? 's' : ''}
             </Typography>
           </Stack>
         </Stack>
@@ -126,8 +125,9 @@ export default function ListingTemplate({
             component="div"
             count={count}
             page={page}
+            setPage={setPage}
             rowsPerPage={rowsPerPage}
-            onPageChange={()=>handleChangePage(event, newPage,rowsPerPage)}
+            onPageChange={(event, newPage)=>handleChangePage(event, newPage,rowsPerPage)}
             onRowsPerPageChange={handleChangeRowsPerPage}
             /> 
     </Box>

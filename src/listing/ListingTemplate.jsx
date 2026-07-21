@@ -31,13 +31,17 @@ import { useThemeMode } from '../ThemeProvider';
 import api from '../api/axios';
 
 export default function ListingTemplate({
-  title = 'List Of Goods & Services',
+  title,
   headers = [],
-  elements = [],
+  pageName,
   setElements = () => {},
+  handleChangePage,
+  handleChangeRowsPerPage,
   setCount,
   rows = [],
   onAdd,
+  onView,
+  onDelete,
   count ,
 }) {
   const { mode, toggleThemeMode } = useThemeMode();
@@ -50,55 +54,9 @@ export default function ListingTemplate({
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const safePage = Math.min(page, Math.max(0, count - 1));
   const visibleRows = rows.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
- const defaultRowsPerPageOptions = [5,15, 25, 50, 100];
- const defaultRowsPerPage = 5;
-console.log(count,"count");
+  const defaultRowsPerPageOptions = [5,15, 25, 50, 100];
+  const defaultRowsPerPage = 5;
 
-  const handleChangePage = async (event, newPage) => {
-    console.log(newPage,"new page");
-        try {
-        const response = await api.get(`http://localhost:8080/items?pageNumber=${newPage}&pageSize=${rowsPerPage}&sortBy=itemName&sortOrder=asc`);
-        console.log(response, 'response');
-        
-        const payload = response?.data?.content ??  [];
-        const normalizedItems = Array.isArray(payload) ? payload : [];
-        setCount(response?.data?.totalElements ?? 0);
-        setElements(
-          normalizedItems.map((item) => ({
-            ...item,
-            itemName: item.itemName,
-            price: item.Price
-          })),
-        );
-      } catch (err) {
-        console.error('Failed to fetch items:', err);
-      } 
-    setPage(newPage);
-  };
-  const handleChangeRowsPerPage = async (event) => {
-    console.log("oooooooooo");
-    
-    setPage(0);
-    setRowsPerPage(event.target.value);
-          try {
-        const response = await api.get(`http://localhost:8080/items?pageNumber=0&pageSize=${event.target.value}&sortBy=itemName&sortOrder=asc`);
-        console.log(response, 'response');
-        
-        const payload = response?.data?.content ??  [];
-        const normalizedItems = Array.isArray(payload) ? payload : [];
-         setCount(response?.data?.totalElements ?? 0);
-        setElements(
-          normalizedItems.map((item) => ({
-            ...item,
-            itemName: item.itemName,
-            price: item.Price
-          })),
-        );
-      } catch (err) {
-        console.error('Failed to fetch items:', err);
-      } 
-  };
-  console.log(rows,"rrrrrrrrr");
   
   return (
     <Box sx={{ bgcolor: isDark ? '#0f172a' : '#f8fafc',  borderRadius: 2 }}>
@@ -117,12 +75,12 @@ console.log(count,"count");
                 '&:hover': { bgcolor: isDark ? '#64b5f6' : '#1565c0' },
               }}
             >
-              Add Item
+              Add {pageName}
             </Button>
           </Stack>
           <Stack direction="row" spacing={1}  sx={{alignItems:"center"}}>
             <Typography variant="body2" sx={{ color: mutedText }}>
-              Total: {count} Items
+              Total: {count} {pageName} {count !== 1 ? 's' : ''}
             </Typography>
           </Stack>
         </Stack>
@@ -146,13 +104,10 @@ console.log(count,"count");
                   <TableCell key={header.key} sx={{ color: textColor, borderColor }}>
                     {header.key === 'actions' ? (
                       <Stack direction="row" spacing={1}>
-                        <IconButton size="small" color={isDark ? 'secondary' : 'primary'}>
-                          <VisibilityIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton size="small" color={isDark ? 'secondary' : 'info'}>
+                        <IconButton size="small" color={isDark ? 'secondary' : 'primary'} onClick={() => onView?.(row)}>
                           <EditIcon fontSize="small" />
                         </IconButton>
-                        <IconButton size="small" color="error">
+                        <IconButton size="small" color="error" onClick={() => onDelete?.(row)}>
                           <DeleteIcon fontSize="small" />
                         </IconButton>
                       </Stack>
@@ -166,35 +121,15 @@ console.log(count,"count");
           </TableBody>
         </Table>
       </TableContainer>
-
-      {/* <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        justifyContent="space-between"
-        alignItems="center"
-        spacing={2}
-        sx={{ mt: 2 }}
-      >
-        <Typography variant="body2" sx={{ color: mutedText }}>
-          Showing {rows.length === 0 ? 0 : safePage * rowsPerPage + 1} - {Math.min((safePage + 1) * rowsPerPage, rows.length)} of {rows.length}
-        </Typography>
-        <Pagination
-          count={pageCount}
-          page={safePage}
-          onChange={(_, value) => setPage(value - 1)}
-          color={isDark ? 'secondary' : 'primary'}
-          shape="rounded"
-        />
-   
-      </Stack> */}
            <TablePagination
-          rowsPerPageOptions={defaultRowsPerPageOptions}
-           component="div"
-  count={count}
-  page={page}
-  rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        /> 
+            rowsPerPageOptions={defaultRowsPerPageOptions}
+            component="div"
+            count={count}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={()=>handleChangePage(event, newPage,rowsPerPage)}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            /> 
     </Box>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Box, Button, Grid, Paper, Stack, Typography } from '@mui/material';
+import { Alert, Box, Button, Grid, Paper, Snackbar, Stack, Typography } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
 import RhfTextField from '../components/RhfTextField';
@@ -24,9 +24,12 @@ export default function Items() {
   const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [selectedItem, setSelectedItem] = useState(null);
   const { mode, toggleThemeMode } = useThemeMode();
   const isDark = mode === 'dark';
-    const surfaceColor = isDark ? '#121212' : '#ffffff';
+  const surfaceColor = isDark ? '#121212' : '#ffffff';
   const borderColor = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)';
   const textColor = isDark ? '#ffffff' : '#111111';
   const mutedText = isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)';
@@ -62,46 +65,150 @@ export default function Items() {
     setSubmitting(true);
     setSubmitError('');
 
-    // Get form values during submit
-    console.log('Form submitted with values:', data);
-    console.log('Item Name:', data.itemName);
-    console.log('Price:', data.price);
-
     try {
-      const response = await api.post('/items', {
-        itemName: data.itemName,
-        Price: Number(data.price),
-      });
+      if (selectedItem) {
+        const response = await api.put(`/items/${selectedItem.itemID}`, {
+          itemName: data.itemName,
+          Price: Number(data.price),
+        });
 
-      const newItem = response?.data ?? {
-        itemName: data.itemName,
-        Price: Number(data.price),
-      };
+        const updatedItem = response?.data ?? {
+          ...selectedItem,
+          itemName: data.itemName,
+          Price: Number(data.price),
+        };
 
-      setItems((prevItems) => [
-        {
-          ...newItem,
-          itemName: newItem.itemName ?? data.itemName,
-          price: newItem.price ?? newItem.Price ?? Number(data.price),
-        },
-        ...prevItems,
-      ]);
-      setTotalItems((prevCount) => prevCount + 1);
-      reset();
+        setItems((prevItems) =>
+          prevItems.map((item) => {
+            const currentId = item.itemID ?? item.id;
+            const selectedId = selectedItem.itemID ?? selectedItem.id;
+            return currentId === selectedId
+              ? {
+                  ...item,
+                  ...updatedItem,
+                  itemName: updatedItem.itemName ?? item.itemName,
+                  price: updatedItem.price ?? updatedItem.Price ?? item.price,
+                }
+              : item;
+          }),
+        );
+      } else {
+        const response = await api.post('/items', {
+          itemName: data.itemName,
+          Price: Number(data.price),
+        });
+
+        const newItem = response?.data ?? {
+          itemName: data.itemName,
+          Price: Number(data.price),
+        };
+
+        setItems((prevItems) => [
+          {
+            ...newItem,
+            itemName: newItem.itemName ?? data.itemName,
+            price: newItem.price ?? newItem.Price ?? Number(data.price),
+          },
+          ...prevItems,
+        ]);
+        setTotalItems((prevCount) => prevCount + 1);
+      }
+
+      setSnackbarMessage(selectedItem ? 'Item updated successfully.' : 'Item added successfully.');
+      setSnackbarOpen(true);
+      reset({ itemName: '', price: '' });
+      setSelectedItem(null);
       setShowAddForm(false);
     } catch (err) {
-      console.error('Failed to add item:', err);
-      setSubmitError('Unable to add the item. Please try again.');
+      console.error('Failed to save item:', err);
+      setSubmitError(selectedItem ? 'Unable to update the item. Please try again.' : 'Unable to add the item. Please try again.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleOpenAddForm = () => setShowAddForm(true);
+  const handleOpenAddForm = () => {
+    setSelectedItem(null);
+    reset({ itemName: '', price: '' });
+    setShowAddForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleViewItem = (item) => {
+    setSelectedItem(item);
+    reset({
+      itemName: item?.itemName ?? item?.name ?? '',
+      price: item?.price ?? item?.Price ?? '',
+    });
+    setShowAddForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleCloseAddForm = () => {
+    setSelectedItem(null);
     setShowAddForm(false);
     setSubmitError('');
-    reset();
+    reset({ itemName: '', price: '' });
+  };
+
+  const handleDeleteItem = async (item) => {
+    const itemId = item?.itemID;
+    if (!itemId) return;
+
+    try {
+      await api.delete(`/items/${itemId}`);
+      setItems((prevItems) => prevItems.filter((currentItem) => currentItem.itemID !== itemId));
+      setTotalItems((prevCount) => Math.max(0, prevCount - 1));
+      setSnackbarMessage('Item deleted successfully.');
+      setSnackbarOpen(true);
+    } catch (err) {
+      console.error('Failed to delete item:', err);
+      setError('Unable to delete the item. Please try again.');
+    }
+  };
+  const handleChangePage = async (event, newPage,rowsPerPage) => {
+    console.log(newPage,"new page");
+        try {
+        const response = await api.get(`http://localhost:8080/items?pageNumber=${newPage}&pageSize=${rowsPerPage}&sortBy=itemName&sortOrder=asc`);
+        console.log(response, 'response');
+        
+        const payload = response?.data?.content ??  [];
+        const normalizedItems = Array.isArray(payload) ? payload : [];
+        setCount(response?.data?.totalElements ?? 0);
+        setElements(
+          normalizedItems.map((item) => ({
+            ...item,
+            itemName: item.itemName,
+            price: item.Price
+          })),
+        );
+      } catch (err) {
+        console.error('Failed to fetch items:', err);
+      } 
+    setPage(newPage);
+  };
+  const handleChangeRowsPerPage = async (event) => {
+    console.log("oooooooooo");
+    
+    setPage(0);
+    setRowsPerPage(event.target.value);
+          try {
+        const response = await api.get(`http://localhost:8080/items?pageNumber=0&pageSize=${event.target.value}&sortBy=itemName&sortOrder=asc`);
+        console.log(response, 'response');
+        
+        const payload = response?.data?.content ??  [];
+        const normalizedItems = Array.isArray(payload) ? payload : [];
+         setCount(response?.data?.totalElements ?? 0);
+        setElements(
+          normalizedItems.map((item) => ({
+            ...item,
+            itemName: item.itemName,
+            price: item.Price
+          })),
+        );
+      } catch (err) {
+        console.error('Failed to fetch items:', err);
+      } 
   };
 
   return (
@@ -109,23 +216,11 @@ export default function Items() {
       {showAddForm && (
           <Box sx={{ bgcolor: isDark ? '#0f172a' : '#f8fafc', p: 2, borderRadius: 2 }}>
         <Paper elevation={1} sx={{ p: 2, mb: 2, bgcolor: surfaceColor, border: `1px solid ${borderColor}` }}>
-  {/* FIX: Added spacing={2} to create a gap between fields, and rowSpacing={3} for vertical rows */}
   <Grid container spacing={2} rowSpacing={3} component="form" onSubmit={handleSubmit(onSubmit)}>
     
-    {/* Left Section: Header Titles */}
     <Grid size={{ xs: 12, md: 6 }}>
-      <Box>
-        <Typography variant="h6">Add New Item</Typography>
-        <Typography variant="body2" color="text.secondary">
-          Fill in the item details below to add a new record.
-        </Typography>
-      </Box>
     </Grid>
-    
-    {/* Middle Section: Empty spacing column */}
     <Grid size={{ xs: 12, md: 4 }}></Grid> 
-    
-    {/* Right Section: Close Button Action */}
     <Grid size={{ xs: 12, md: 2 }} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
       <Button 
         variant="text" 
@@ -137,8 +232,6 @@ export default function Items() {
         Close
       </Button>
     </Grid>
-
-    {/* Form Fields Section with correct grid item spacing spacing */}
     <Grid size={{ xs: 12, md: 6 }}>
       <RhfTextField name="itemName" control={control} label="Item Name" required fullWidth />
     </Grid>
@@ -154,14 +247,11 @@ export default function Items() {
       />
     </Grid>
     
-    {/* Form Submit Button Action Row */}
     <Grid size={{ xs: 12 }}>
       <Button type="submit" variant="contained" startIcon={<SaveIcon />} disabled={submitting} sx={{ minWidth: 150, mt: 1 }}>
-        {submitting ? 'Saving...' : 'Save Item'}
+        {submitting ? 'Saving...' : selectedItem ? 'Update Item' : 'Save Item'}
       </Button>
     </Grid>
-
-    {/* Form Network Error Notification */}
     {submitError ? (
       <Grid size={{ xs: 12 }}>
         <Typography color="error" variant="body2">
@@ -180,14 +270,28 @@ export default function Items() {
         rows={items}
         count={totalItems}
         setCount={setTotalItems}
-        elements={items}
+        pageName="Item"
+        handleChangePage={handleChangePage}
+        handleChangeRowsPerPage={handleChangeRowsPerPage}
         setElements={setItems}
         onAdd={handleOpenAddForm}
+        onView={handleViewItem}
+        onDelete={handleDeleteItem}
         title="List Of Goods & Services"
-        subtitle="Manage your products, services, and inventory details."
         loading={loading}
         error={error}
       />
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity="success" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

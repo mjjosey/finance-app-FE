@@ -117,22 +117,6 @@ console.log(saleOptions,"saleOptions");
     fetchLookups();
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
-
-    if (selectedRecord?.customer?.customerID || selectedRecord?.customerID) {
-      const customerId = selectedRecord.customer?.customerID ?? selectedRecord.customerID;
-      fetchCustomerSales(customerId);
-      return;
-    }
-
-    if (!selectedCustomerId) {
-      setSales(allSales);
-      return;
-    }
-
-    fetchCustomerSales(selectedCustomerId);
-  }, [open, ]);
 
   useEffect(() => {
     if (!open) return;
@@ -237,7 +221,6 @@ console.log(saleOptions,"saleOptions");
               name="receiptDate"
               label="Receipt Date"
               type="date"
-              InputLabelProps={{ shrink: true }}
               required
                slotProps={{
     inputLabel: { shrink: true } 

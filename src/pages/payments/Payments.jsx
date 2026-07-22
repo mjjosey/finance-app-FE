@@ -141,13 +141,7 @@ export default function Payments() {
   };
 
   return (
-    <PageTemplate title="Payments" subtitle="Manage payment entries for purchases and suppliers.">
-      {error ? (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      ) : null}
-
+    <>
       {showForm ? (
         <AddPayment
           open={showForm}
@@ -174,6 +168,6 @@ export default function Payments() {
         onDelete={handleDelete}
         addButtonLabel="Add Payment"
       />
-    </PageTemplate>
+    </>
   );
 }

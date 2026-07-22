@@ -94,6 +94,7 @@ console.log(saleOptions,"saleOptions");
       setError('Unable to load sales for the selected customer.');
     }
   };
+console.log(sales,allSales,saleOptions,"ppppppppppppp");
 
   useEffect(() => {
     if (!open) return;
@@ -108,6 +109,13 @@ console.log(saleOptions,"saleOptions");
         const initialSales = Array.isArray(saleRes.data) ? saleRes.data : saleRes.data?.content || [];
         setAllSales(initialSales);
         setSales(initialSales);
+            const options = initialSales.map((item) => ({
+      label: item.invoiceNumber || `Sale #${item.salesID}`,
+      value: item.salesID,
+      customerID: item.customerID,
+    }));
+    console.log(options, "filteredSales");
+    setSaleOptions(options);
         setCustomers(Array.isArray(customerRes.data) ? customerRes.data : customerRes.data?.content || []);
       } catch (err) {
         setError('Unable to load dropdown data.');
@@ -121,7 +129,7 @@ console.log(saleOptions,"saleOptions");
   useEffect(() => {
     if (!open) return;
 
-    const selectedSaleOption = saleOptions.find((option) => option.value === (selectedRecord?.sale?.salesID || selectedRecord?.salesID)) || null;
+    const selectedSaleOption = saleOptions.find((option) => option.value === (selectedRecord?.sales?.salesID || selectedRecord?.salesID)) || null;
     const selectedCustomerOption = customerOptions.find((option) => option.value === (selectedRecord?.customer?.customerID || selectedRecord?.customerID)) || null;
 
     if (selectedRecord) {

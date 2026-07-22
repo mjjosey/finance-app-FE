@@ -20,7 +20,7 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
   const surfaceColor = isDark ? '#121212' : '#ffffff';
   const borderColor = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)';
 
-  const { control, handleSubmit, reset, setValue, formState: { isSubmitting } } = useForm({
+  const { control, handleSubmit, reset, formState: { isSubmitting } } = useForm({
     defaultValues: {
       amount: '',
       paymentDate: '',
@@ -30,7 +30,6 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
   });
 
   const selectedSupplier = useWatch({ control, name: 'supplier' });
-  const selectedPurchase = useWatch({ control, name: 'purchase' });
   const selectedSupplierId = selectedSupplier?.value ?? selectedSupplier?.supplierID ?? selectedSupplier?.id ?? null;
 
   const normalizedPurchases = useMemo(
@@ -45,7 +44,7 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
   );
 useEffect(() => {
 fetchSupplierPurchases(selectedSupplierId);
-}, [selectedSupplier]);
+}, [selectedSupplierId]);
 
   const supplierOptions = useMemo(
     () => suppliers.map((item) => ({ label: item.supplierName || `Supplier #${item.supplierID}`, value: item.supplierID })),
@@ -131,6 +130,47 @@ fetchSupplierPurchases(selectedSupplierId);
 
     fetchLookups();
   }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const selectedPurchaseId = selectedRecord?.purchase?.purchaseID ?? selectedRecord?.purchaseID ?? selectedRecord?.purchaseId ?? null;
+    const selectedSupplierIdFromRecord = selectedRecord?.supplier?.supplierID ?? selectedRecord?.supplierID ?? selectedRecord?.supplierId ?? null;
+
+    const selectedPurchaseOption = purchaseOptions.find((option) => option.value === selectedPurchaseId)
+      ?? (selectedPurchaseId
+        ? {
+            value: selectedPurchaseId,
+            label: selectedRecord?.purchase?.invoiceNumber ?? selectedRecord?.purchaseName ?? `Purchase #${selectedPurchaseId}`,
+            supplierID: selectedSupplierIdFromRecord,
+          }
+        : null);
+
+    const selectedSupplierOption = supplierOptions.find((option) => option.value === selectedSupplierIdFromRecord)
+      ?? (selectedSupplierIdFromRecord
+        ? {
+            value: selectedSupplierIdFromRecord,
+            label: selectedRecord?.supplier?.supplierName ?? selectedRecord?.supplierName ?? `Supplier #${selectedSupplierIdFromRecord}`,
+          }
+        : null);
+
+    if (selectedRecord) {
+      reset({
+        amount: selectedRecord.amount ?? '',
+        paymentDate: selectedRecord.paymentDate ?? '',
+        purchase: selectedPurchaseOption,
+        supplier: selectedSupplierOption,
+      });
+      return;
+    }
+
+    reset({
+      amount: '',
+      paymentDate: '',
+      purchase: null,
+      supplier: null,
+    });
+  }, [open, selectedRecord, purchaseOptions, supplierOptions, reset]);
 
 
  

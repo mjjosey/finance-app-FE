@@ -55,22 +55,11 @@ export default function Receipts() {
 
   const fetchReceiptFormOptions = async () => {
     try {
-      const [saleRes, customerRes] = await Promise.all([
-        axios.get('/sales?pageNumber=0&pageSize=200&sortBy=invoiceNumber&sortOrder=asc'),
-        axios.get('/customers?pageNumber=0&pageSize=200&sortBy=customerName&sortOrder=asc'),
-      ]);
+      const customerRes = await axios.get('/customers?pageNumber=0&pageSize=200&sortBy=customerName&sortOrder=asc');
 
       const salePayload = saleRes?.data?.content ?? [];
       const customerPayload = customerRes?.data?.content ?? [];
 
-      setSaleOptions(
-        (Array.isArray(salePayload) ? salePayload : [])
-          .map((item) => ({
-            salesID: item.salesID ?? item.id,
-            invoiceNumber: item.invoiceNumber ?? item.invoiceNo ?? item.invoice ?? `Sale #${item.salesID ?? item.id}`,
-          }))
-          .filter((item) => item.salesID),
-      );
 
       setCustomerOptions(
         (Array.isArray(customerPayload) ? customerPayload : [])
@@ -90,9 +79,7 @@ export default function Receipts() {
     fetchReceipts(0, rowsPerPage);
   }, []);
 
-  useEffect(() => {
-    setReceipts((prevReceipts) => prevReceipts.map(normalizeReceipt));
-  }, [saleOptions, customerOptions]);
+ 
 
   useEffect(() => {
     if (!refreshKey) return;
@@ -137,15 +124,10 @@ export default function Receipts() {
       setError('Unable to delete the receipt. Please try again.');
     }
   };
+console.log(selectedRecord,"selectedRecord");
 
   return (
-    <PageTemplate title="Receipts" subtitle="Manage customer receipt entries and payment history.">
-      {error ? (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      ) : null}
-
+    <>
       {showForm ? (
         <AddReceipt
           open={showForm}
@@ -172,6 +154,6 @@ export default function Receipts() {
         onDelete={handleDelete}
         addButtonLabel="Add Receipt"
       />
-    </PageTemplate>
+    </>
   );
 }

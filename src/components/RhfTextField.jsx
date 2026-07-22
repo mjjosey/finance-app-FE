@@ -5,6 +5,7 @@ export default function RhfTextField({
   name,
   control,
   label,
+  slotProps,
   type = 'text',
   required = false,
   fullWidth = true,
@@ -14,16 +15,20 @@ export default function RhfTextField({
     <Controller
       name={name}
       control={control}
+      
       rules={{ required: required ? `${label} is required` : false }}
       render={({ field, fieldState: { error } }) => (
         <TextField
           {...field}
           fullWidth={fullWidth}
           label={label}
+          
+       slotProps={slotProps}
           type={type}
           value={field.value ?? ''}
           error={Boolean(error)}
           helperText={error?.message}
+   
           onChange={(event) => {
             const value = event.target.value;
             field.onChange(type === 'number' && value !== '' ? Number(value) : value);

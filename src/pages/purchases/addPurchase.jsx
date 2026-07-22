@@ -7,26 +7,26 @@ import { useForm, useWatch } from 'react-hook-form';
 import RhfTextField from '../../components/RhfTextField';
 import { RhfAutocomplete } from '../../components/RhfAutocomplete';
 
-const AddSale = ({
+const AddPurchase = ({
   onSubmit,
   submitting,
   submitError,
   onClose,
-  selectedSale,
+  selectedPurchase,
+  supplierOptions = [],
   itemOptions = [],
-  customerOptions = [],
 }) => {
+  const getSupplierOptionById = (supplierId) => supplierOptions.find((option) => option.supplierID === supplierId) ?? null;
   const getItemOptionById = (itemId) => itemOptions.find((option) => option.itemID === itemId) ?? null;
-  const getCustomerOptionById = (customerId) => customerOptions.find((option) => option.customerID === customerId) ?? null;
 
   const { control, handleSubmit, reset, setValue } = useForm({
     defaultValues: {
+      supplier: null,
       item: null,
-      customer: null,
       invoiceNumber: '',
       quantity: '',
       price: '',
-      saleDate: '',
+      purchaseDate: '',
       paidStatus: '',
     },
   });
@@ -38,43 +38,47 @@ const AddSale = ({
   const selectedItem = useWatch({ control, name: 'item' });
 
   useEffect(() => {
-    if (selectedSale) {
+    if (selectedPurchase) {
       reset({
-        item: getItemOptionById(selectedSale.itemID),
-        customer: getCustomerOptionById(selectedSale.customerID),
-        invoiceNumber: selectedSale.invoiceNumber ?? selectedSale.invoiceNo ?? selectedSale.invoice ?? '',
-        quantity: selectedSale.quantity ?? '',
-        price: selectedSale.price ?? selectedSale.Price ?? '',
-        saleDate: selectedSale.saleDate ?? '',
-        paidStatus: selectedSale.paidStatus ?? '',
+        supplier: getSupplierOptionById(selectedPurchase.supplierID),
+        item: getItemOptionById(selectedPurchase.itemID),
+        invoiceNumber: selectedPurchase.invoiceNumber ?? selectedPurchase.invoiceNo ?? selectedPurchase.invoice ?? '',
+        quantity: selectedPurchase.quantity ?? '',
+        price: selectedPurchase.price ?? selectedPurchase.Price ?? '',
+        purchaseDate: selectedPurchase.purchaseDate ?? '',
+        paidStatus: selectedPurchase.paidStatus ?? '',
       });
       return;
     }
 
     reset({
+      supplier: null,
       item: null,
-      customer: null,
       invoiceNumber: '',
       quantity: '',
       price: '',
-      saleDate: '',
+      purchaseDate: '',
       paidStatus: '',
     });
-  }, [selectedSale, reset, itemOptions, customerOptions]);
+  }, [selectedPurchase, reset, supplierOptions, itemOptions]);
 
   useEffect(() => {
-    console.log(selectedItem,selectedSale, "selectedItem");
-    
-    if (!selectedItem) return;
+    if (!selectedItem) {
+      if (!selectedPurchase) {
+        setValue('price', '', { shouldValidate: true, shouldDirty: true });
+      }
+      return;
+    }
 
-    const priceFromItem = selectedSale?.price ?? selectedItem?.itemPrice;
-    console.log(priceFromItem, "priceFromItem");
-    
+    const priceFromItem = selectedPurchase
+      ? selectedPurchase.price ?? selectedPurchase.Price
+      : selectedItem.price ?? selectedItem.itemPrice ?? selectedItem.Price;
+
     if (priceFromItem === undefined || priceFromItem === null || priceFromItem === '') return;
 
     setValue('price', Number(priceFromItem), { shouldValidate: true, shouldDirty: true });
-  }, [selectedItem, setValue]);
-console.log(selectedItem,"selectedItem");
+  }, [selectedItem, selectedPurchase, setValue]);
+
   return (
     <Box sx={{ bgcolor: isDark ? '#0f172a' : '#f8fafc', p: 2, borderRadius: 2 }}>
       <Paper elevation={1} sx={{ p: 2, mb: 2, bgcolor: surfaceColor, border: `1px solid ${borderColor}` }}>
@@ -82,23 +86,17 @@ console.log(selectedItem,"selectedItem");
           <Grid size={{ xs: 12, md: 6 }} />
           <Grid size={{ xs: 12, md: 4 }} />
           <Grid size={{ xs: 12, md: 2 }} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
-            <Button
-              variant="text"
-              color="inherit"
-              startIcon={<CloseIcon />}
-              onClick={onClose}
-              sx={{ border: '3px solid red' }}
-            >
+            <Button variant="text" color="inherit" startIcon={<CloseIcon />} onClick={onClose}>
               Close
             </Button>
           </Grid>
-
-          <Grid size={{ xs: 12, md: 4 }}>
+  <Grid size={{ xs: 12, md: 4 }}>
             <RhfAutocomplete
               name="item"
               control={control}
               label="Item Name"
               required
+              fullWidth
               options={itemOptions}
               getOptionLabel={(option) => option?.itemName ?? ''}
               isOptionEqualToValue={(option, value) => option?.itemID === value?.itemID}
@@ -106,14 +104,13 @@ console.log(selectedItem,"selectedItem");
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
             <RhfAutocomplete
-              name="customer"
+              name="supplier"
               control={control}
-              label="Customer Name"
+              label="Supplier Name"
               required
-              fullWidth
-              options={customerOptions}
-              getOptionLabel={(option) => option?.customerName ?? ''}
-              isOptionEqualToValue={(option, value) => option?.customerID === value?.customerID}
+              options={supplierOptions}
+              getOptionLabel={(option) => option?.supplierName ?? ''}
+              isOptionEqualToValue={(option, value) => option?.supplierID === value?.supplierID}
             />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
@@ -127,13 +124,17 @@ console.log(selectedItem,"selectedItem");
             <RhfTextField name="price" control={control} label="Price" type="number" required fullWidth />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
-            <RhfTextField name="saleDate" control={control} label="Sale Date" type="date" required fullWidth    slotProps={{
+            <RhfTextField
+              name="purchaseDate"
+              control={control}
+              label="Purchase Date"
+              type="date"
+              required
+              fullWidth
+               slotProps={{
     inputLabel: { shrink: true } 
   }} />
           </Grid>
-          {/* <Grid size={{ xs: 12, md: 4 }}>
-            <RhfTextField name="paidStatus" control={control} label="Paid Status" required fullWidth />
-          </Grid> */}
 
           <Grid size={{ xs: 12 }}>
             <Button
@@ -143,7 +144,7 @@ console.log(selectedItem,"selectedItem");
               disabled={submitting}
               sx={{ minWidth: 150, mt: 1 }}
             >
-              {submitting ? 'Saving...' : selectedSale ? 'Update Sale' : 'Save Sale'}
+              {submitting ? 'Saving...' : selectedPurchase ? 'Update Purchase' : 'Save Purchase'}
             </Button>
           </Grid>
 
@@ -160,4 +161,4 @@ console.log(selectedItem,"selectedItem");
   );
 };
 
-export default AddSale;
+export default AddPurchase;

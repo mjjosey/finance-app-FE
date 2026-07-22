@@ -26,8 +26,19 @@ export default function Sales() {
     saleID: sale.saleID ?? sale.id ?? sale.saleId,
     itemID: sale.itemID ?? sale.item?.itemID ?? sale.item?.id,
     customerID: sale.customerID ?? sale.customer?.customerID ?? sale.customer?.id,
-    // itemName: sale.itemName ?? sale.item?.itemName ?? sale.item?.name ?? '-',
-    // customerName: sale.customerName ?? sale.customer?.customerName ?? sale.customer?.name ?? '-',
+    invoiceNumber: sale.invoiceNumber ?? sale.invoiceNo ?? sale.invoice ?? '-',
+    itemName:
+      sale.itemName
+      ?? sale.item?.itemName
+      ?? sale.item?.name
+      ?? itemOptions.find((item) => item.itemID === (sale.itemID ?? sale.item?.itemID ?? sale.item?.id))?.itemName
+      ?? '-',
+    customerName:
+      sale.customerName
+      ?? sale.customer?.customerName
+      ?? sale.customer?.name
+      ?? customerOptions.find((customer) => customer.customerID === (sale.customerID ?? sale.customer?.customerID ?? sale.customer?.id))?.customerName
+      ?? '-',
     quantity: sale.quantity ?? '-',
     price: sale.price ?? sale.Price ?? '-',
     saleDate: sale.saleDate ?? sale.date ?? '-',
@@ -40,7 +51,6 @@ export default function Sales() {
       const response = await api.get(`/sales?pageNumber=${pageNumber}&pageSize=${pageSize}`);
       const payload = response?.data?.content ?? [];
       const normalizedSales = Array.isArray(payload) ? payload : [];
-
       setSales(normalizedSales.map(normalizeSale));
       setTotalSales(response?.data?.totalElements ?? normalizedSales.length);
       setError('');
@@ -66,16 +76,17 @@ export default function Sales() {
       const normalizedCustomers = Array.isArray(customersPayload) ? customersPayload : [];
 
       setItemOptions(
-        itemsPayload
+        normalizedItems
           .map((item) => ({
             itemID: item.itemID ?? item.id,
             itemName: item.itemName ?? item.name,
+            itemPrice: item.price ?? item.Price ?? '',
           }))
           .filter((item) => item.itemID && item.itemName),
       );
 
       setCustomerOptions(
-        customersPayload
+        normalizedCustomers
           .map((customer) => ({
             customerID: customer.customerID ?? customer.id,
             customerName: customer.customerName ?? customer.name,
@@ -91,6 +102,9 @@ export default function Sales() {
     fetchSales();
     fetchSaleFormOptions();
   }, []);
+  useEffect(() => {
+    setSales((prevSales) => prevSales.map(normalizeSale));
+  }, [itemOptions, customerOptions]);
 
   const handleChangePage = async (event, newPage, rowsPerPageValue) => {
     try {
@@ -126,10 +140,11 @@ export default function Sales() {
     setSubmitError('');
 
     const payload = {
+      invoiceNumber: data.invoiceNumber,
       price: Number(data.price),
       quantity: Number(data.quantity),
       saleDate: data.saleDate,
-      paidStatus: data.paidStatus,
+      paidStatus: data.paidStatus !== "" ? data.paidStatus : "NOT PAID",
       item: {
         itemID: Number(data.item?.itemID),
       },
@@ -140,13 +155,13 @@ export default function Sales() {
 
     try {
       if (selectedSale) {
-        const saleId = selectedSale.saleID;
+        const saleId = selectedSale.salesID;
         const response = await api.put(`/sales/${saleId}`, payload);
         const updatedSale = normalizeSale(response?.data ?? { ...selectedSale, ...payload });
 
         setSales((prev) =>
           prev.map((sale) => {
-            const id = sale.saleID;
+            const id = sale.salesID;
             return id === saleId ? { ...sale, ...updatedSale } : sale;
           }),
         );
@@ -190,12 +205,12 @@ export default function Sales() {
   };
 
   const handleDeleteSale = async (sale) => {
-    const saleId = sale.saleID;
+    const saleId = sale.salesID;
     if (!saleId) return;
 
     try {
       await api.delete(`/sales/${saleId}`);
-      setSales((prev) => prev.filter((current) => current.saleID !== saleId));
+      setSales((prev) => prev.filter((current) => current.salesID !== saleId));
       setTotalSales((prevCount) => Math.max(0, prevCount - 1));
       setSnackbarMessage('Sale deleted successfully.');
       setSnackbarOpen(true);
@@ -204,7 +219,6 @@ export default function Sales() {
       setError('Unable to delete the sale. Please try again.');
     }
   };
-console.log(itemOptions,"itemOptions");
 
   return (
     <>

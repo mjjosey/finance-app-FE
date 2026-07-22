@@ -5,9 +5,9 @@ import Items from './pages/Items/Items';
 import Customers from './pages/customers/Customers';
 import Suppliers from './pages/suppliers/Suppliers';
 import Sales from './pages/sales/Sales';
-import Purchases from './pages/Purchases';
-import Payments from './pages/Payments';
-import Receipts from './pages/Receipts';
+import Purchases from './pages/purchases/Purchases';
+import Payments from './pages/payments/Payments';
+import Receipts from './pages/receipts/Receipts';
 import { navItems as baseNavItems } from './constants';
 
 export const navItems = [

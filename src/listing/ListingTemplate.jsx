@@ -43,6 +43,7 @@ export default function ListingTemplate({
   rows = [],
   onAdd,
   onView,
+  onEdit,
   onDelete,
   count ,
 }) {
@@ -56,6 +57,7 @@ export default function ListingTemplate({
   const defaultRowsPerPageOptions = [5,15, 25, 50, 100];
   const defaultRowsPerPage = 5;
 
+  const handleEdit = onEdit ?? onView;
   
   return (
     <Box sx={{ bgcolor: isDark ? '#0f172a' : '#f8fafc',  borderRadius: 2 }}>
@@ -74,7 +76,7 @@ export default function ListingTemplate({
                 '&:hover': { bgcolor: isDark ? '#64b5f6' : '#1565c0' },
               }}
             >
-              Add {pageName}
+              Add {pageName ?? title ?? 'Item'}
             </Button>
           </Stack>
           <Stack direction="row" spacing={1}  sx={{alignItems:"center"}}>
@@ -97,13 +99,13 @@ export default function ListingTemplate({
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row) => (
-              <TableRow key={row?.itemID} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+            {rows.map((row, index) => (
+              <TableRow key={row?.purchaseID ?? row?.saleID ?? row?.supplierID ?? row?.customerID ?? row?.itemID ?? row?.id ?? `${pageName}-${index}`} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 {headers.map((header) => (
                   <TableCell key={header.key} sx={{ color: textColor, borderColor }}>
                     {header.key === 'actions' ? (
                       <Stack direction="row" spacing={1}>
-                        <IconButton size="small" color={isDark ? 'secondary' : 'primary'} onClick={() => onView?.(row)}>
+                        <IconButton size="small" color={isDark ? 'secondary' : 'primary'} onClick={() => handleEdit?.(row)}>
                           <EditIcon fontSize="small" />
                         </IconButton>
                         <IconButton size="small" color="error" onClick={() => onDelete?.(row)}>

@@ -35,11 +35,39 @@ export const supplierHeaders = [
 export const salesHeaders = [
   { label: 'Item Name', key: 'itemName', width: '20%' },
   { label: 'Customer Name', key: 'customerName', width: '20%' },
+  { label: 'Invoice Number', key: 'invoiceNumber', width: '20%' },
   { label: 'Quantity', key: 'quantity', width: '20%' },
   { label: 'Price', key: 'price', width: '20%' },
   { label: 'Sale Date', key: 'saleDate', width: '20%' },
   { label: 'Paid Status', key: 'paidStatus', width: '20%' },
   { label: 'Actions', key: 'actions', width: '20%' }
+];
+
+export const purchaseHeaders = [
+  { label: 'Item Name', key: 'itemName', width: '20%' },
+  { label: 'Supplier Name', key: 'supplierName', width: '20%' },
+  { label: 'Invoice Number', key: 'invoiceNumber', width: '20%' },
+  { label: 'Quantity', key: 'quantity', width: '20%' },
+  { label: 'Price', key: 'price', width: '20%' },
+  { label: 'Purchase Date', key: 'purchaseDate', width: '20%' },
+  { label: 'Paid Status', key: 'paidStatus', width: '20%' },
+  { label: 'Actions', key: 'actions', width: '20%' }
+];
+ 
+export const receiptHeaders = [
+  { label: 'Amount', key: 'amount', width: '20%' },
+  { label: 'Receipt Date', key: 'receiptDate', width: '20%' },
+  { label: 'Sale', key: 'saleNumber', width: '20%' },
+  { label: 'Customer', key: 'customerName', width: '20%' },
+  { label: 'Actions', key: 'actions', width: '20%' },
+];
+
+export const paymentHeaders = [
+  { label: 'Amount', key: 'amount', width: '20%' },
+  { label: 'Payment Date', key: 'paymentDate', width: '20%' },
+  { label: 'Purchase', key: 'purchaseName', width: '20%' },
+  { label: 'Supplier', key: 'supplierName', width: '20%' },
+  { label: 'Actions', key: 'actions', width: '20%' },
 ];
 export const DEFAULT_ROWS = [
   {

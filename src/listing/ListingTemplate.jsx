@@ -58,6 +58,7 @@ export default function ListingTemplate({
   const defaultRowsPerPage = 5;
 
   const handleEdit = onEdit ?? onView;
+console.log(rows,"rows");
 
   return (
     <Box sx={{ bgcolor: isDark ? '#0f172a' : '#f8fafc', borderRadius: 2 }}>
@@ -125,6 +126,7 @@ export default function ListingTemplate({
                   row?.supplierID ??
                   row?.customerID ??
                   row?.itemID ??
+                  row?.receiptID ??
                   row?.id ??
                   `${pageName}-${index}`
                 }

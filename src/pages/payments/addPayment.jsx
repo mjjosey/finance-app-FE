@@ -74,53 +74,17 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
   const fetchSupplierPurchases = async (supplierId) => {
     if (!supplierId) {
       setPurchases(allPurchases);
-      setPurchaseOptions(mapPurchasesToOptions(allPurchases));
       return;
     }
 
-    try {
-      const response = await axios.get(`/purchases/${supplierId}`);
+        try {
+      const response = await axios.get(`/purchases?supplierId=${supplierId}`);
       const payload = response?.data?.content ?? [];
-      const supplierPurchases = Array.isArray(payload) ? payload : [];
-      setPurchases(supplierPurchases);
-
-      const normalizedSupplierPurchases = supplierPurchases.map((item) => ({
-        ...item,
-        purchaseID: item.purchaseID ?? item.id,
-        supplierID: item.supplier?.supplierID ?? item.supplierID ?? item.supplier?.id ?? null,
-        invoiceNumber:
-          item.invoiceNumber ??
-          item.invoiceNo ??
-          item.invoice ??
-          `Purchase #${item.purchaseID ?? item.id}`,
-      }));
-      setPurchaseOptions(mapPurchasesToOptions(normalizedSupplierPurchases));
-      setError('');
+      const normalizedSupplierPurchases = Array.isArray(payload) ? payload : [];
+      setPurchases(normalizedSupplierPurchases);
     } catch (err) {
       console.error('Failed to fetch purchases for supplier:', err);
-
-      const fallbackPurchases = allPurchases.filter((item) => {
-        const supplierID =
-          item.supplier?.supplierID ?? item.supplierID ?? item.supplier?.id ?? null;
-        return supplierID === supplierId;
-      });
-
-      const normalizedFallbackPurchases = fallbackPurchases.map((item) => ({
-        ...item,
-        purchaseID: item.purchaseID ?? item.id,
-        supplierID: item.supplier?.supplierID ?? item.supplierID ?? item.supplier?.id ?? null,
-        invoiceNumber:
-          item.invoiceNumber ??
-          item.invoiceNo ??
-          item.invoice ??
-          `Purchase #${item.purchaseID ?? item.id}`,
-      }));
-
-      setPurchases(fallbackPurchases);
-      setPurchaseOptions(mapPurchasesToOptions(normalizedFallbackPurchases));
-      setError(
-        'Unable to load purchases for the selected supplier from server. Showing available local results.',
-      );
+      setError('Unable to load purchases for the selected supplier.');
     }
   };
 

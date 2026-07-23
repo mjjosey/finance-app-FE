@@ -35,26 +35,10 @@ export default function Payments() {
     purchaseName:
       payment.purchaseName ??
       payment.purchase?.invoiceNumber ??
-      purchaseOptions.find(
-        (option) =>
-          option.purchaseID ===
-          (payment.purchase?.purchaseID ??
-            payment.purchaseID ??
-            payment.purchase?.id ??
-            payment.purchaseId),
-      )?.invoiceNumber ??
       '-',
     supplierName:
       payment.supplierName ??
       payment.supplier?.supplierName ??
-      supplierOptions.find(
-        (option) =>
-          option.supplierID ===
-          (payment.supplier?.supplierID ??
-            payment.supplierID ??
-            payment.supplier?.id ??
-            payment.supplierId),
-      )?.supplierName ??
       '-',
     amount: payment.amount ?? payment.Amount ?? '-',
     paymentDate: payment.paymentDate ?? payment.date ?? '-',
@@ -78,27 +62,12 @@ export default function Payments() {
   };
 
   const fetchPaymentFormOptions = async () => {
-    try {
-      const [purchaseRes, supplierRes] = await Promise.all([
-        axios.get('/purchases?pageNumber=0&pageSize=200&sortBy=invoiceNumber&sortOrder=asc'),
-        axios.get('/suppliers?pageNumber=0&pageSize=200&sortBy=supplierName&sortOrder=asc'),
-      ]);
-
-      const purchasePayload = purchaseRes?.data?.content ?? [];
-      const supplierPayload = supplierRes?.data?.content ?? [];
-
-      setPurchaseOptions(
-        (Array.isArray(purchasePayload) ? purchasePayload : [])
-          .map((item) => ({
-            purchaseID: item.purchaseID ?? item.id,
-            invoiceNumber:
-              item.invoiceNumber ??
-              item.invoiceNo ??
-              item.invoice ??
-              `Purchase #${item.purchaseID ?? item.id}`,
-          }))
-          .filter((item) => item.purchaseID),
+     try {
+      const supplierRes = await axios.get(
+        '/suppliers?pageNumber=0&pageSize=200&sortBy=supplierName&sortOrder=asc',
       );
+
+      const supplierPayload = supplierRes?.data?.content ?? [];
 
       setSupplierOptions(
         (Array.isArray(supplierPayload) ? supplierPayload : [])
@@ -117,15 +86,6 @@ export default function Payments() {
     fetchPaymentFormOptions();
     fetchPayments(0, rowsPerPage);
   }, []);
-
-  useEffect(() => {
-    setPayments((prevPayments) => prevPayments.map(normalizePayment));
-  }, [purchaseOptions, supplierOptions]);
-
-  useEffect(() => {
-    if (!refreshKey) return;
-    fetchPayments(page, rowsPerPage);
-  }, [refreshKey]);
 
   const handleChangePage = async (event, newPage, rowsPerPageValue) => {
     await fetchPayments(newPage, rowsPerPageValue);

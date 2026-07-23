@@ -20,7 +20,6 @@ export default function Receipts() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const normalizeReceipt = (receipt) => ({
-    ...receipt,
     receiptID: receipt.receiptID ?? receipt.id ?? receipt.receiptId,
     salesID: receipt.sale?.salesID ?? receipt.salesID ?? receipt.sale?.id ?? receipt.saleId,
     customerID:
@@ -32,14 +31,6 @@ export default function Receipts() {
     customerName:
       receipt.customerName ??
       receipt.customer?.customerName ??
-      customerOptions.find(
-        (option) =>
-          option.customerID ===
-          (receipt.customer?.customerID ??
-            receipt.customerID ??
-            receipt.customer?.id ??
-            receipt.customerId),
-      )?.customerName ??
       '-',
     amount: receipt.amount ?? receipt.Amount ?? '-',
     receiptDate: receipt.receiptDate ?? receipt.date ?? '-',
@@ -52,6 +43,9 @@ export default function Receipts() {
       const payload = response?.data?.content ?? [];
       const normalizedReceipts = Array.isArray(payload) ? payload : [];
       setReceipts(normalizedReceipts.map(normalizeReceipt));
+      console.log('Normalized Receipts:', normalizedReceipts);
+      console.log('Normalized Receipts:', normalizedReceipts.map(normalizeReceipt));
+      
       setTotalReceipts(response?.data?.totalElements ?? normalizedReceipts.length);
       setError('');
     } catch (err) {
@@ -61,7 +55,10 @@ export default function Receipts() {
       setLoading(false);
     }
   };
-
+  useEffect(() => {
+    if (!refreshKey) return;
+    fetchReceipts(page, rowsPerPage);
+  }, [refreshKey]);
   const fetchReceiptFormOptions = async () => {
     try {
       const customerRes = await axios.get(

@@ -240,8 +240,6 @@ export default function Customers() {
         onView={handleViewCustomer}
         onDelete={handleDeleteCustomer}
         pageName="Customer"
-        title="Customers"
-        subtitle="Manage your customer records and contact details."
         loading={loading}
         error={error}
       />

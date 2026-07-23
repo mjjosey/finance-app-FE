@@ -31,7 +31,6 @@ import { useThemeMode } from '../ThemeProvider';
 import api from '../api/axios';
 
 export default function ListingTemplate({
-  title,
   headers = [],
   pageName,
   page,
@@ -80,7 +79,7 @@ export default function ListingTemplate({
                 '&:hover': { bgcolor: isDark ? '#64b5f6' : '#1565c0' },
               }}
             >
-              Add {pageName ?? title ?? 'Item'}
+              Add {pageName }
             </Button>
           </Stack>
           <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>

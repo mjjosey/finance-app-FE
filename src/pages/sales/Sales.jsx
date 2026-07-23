@@ -265,8 +265,6 @@ export default function Sales() {
         onAdd={handleOpenForm}
         onView={handleViewSale}
         onDelete={handleDeleteSale}
-        title="Sales"
-        subtitle="Manage sales records, customers, pricing, and payment status."
         loading={loading}
         error={error}
       />

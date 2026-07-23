@@ -118,7 +118,6 @@ export default function Receipts() {
       ) : null}
 
       <ListingTemplate
-        title="Receipts"
         pageName="Receipt"
         rows={receipts}
         headers={receiptHeaders}

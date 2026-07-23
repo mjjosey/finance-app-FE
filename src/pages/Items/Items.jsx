@@ -234,7 +234,6 @@ export default function Items() {
         onAdd={handleOpenAddForm}
         onView={handleViewItem}
         onDelete={handleDeleteItem}
-        title="List Of Goods & Services"
         loading={loading}
         error={error}
       />

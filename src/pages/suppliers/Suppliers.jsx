@@ -236,9 +236,6 @@ export default function Suppliers() {
         onAdd={handleOpenForm}
         onView={handleViewSupplier}
         onDelete={handleDeleteSupplier}
-        pageName="Supplier"
-        title="Suppliers"
-        subtitle="Manage your supplier records and contact details."
         loading={loading}
         error={error}
       />

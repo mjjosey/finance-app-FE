@@ -124,7 +124,6 @@ useEffect(() => {
       ) : null}
 
       <ListingTemplate
-        title="Payments"
         pageName="Payment"
         rows={payments}
         headers={paymentHeaders}

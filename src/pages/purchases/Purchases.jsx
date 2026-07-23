@@ -259,8 +259,6 @@ export default function Purchases() {
         onAdd={handleOpenForm}
         onView={handleViewPurchase}
         onDelete={handleDeletePurchase}
-        title="Purchases"
-        subtitle="Manage purchase records, supplier selection, pricing, and payment status."
         loading={loading}
         error={error}
       />

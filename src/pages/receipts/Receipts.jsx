@@ -27,7 +27,11 @@ export default function Receipts() {
       receipt.customerID ??
       receipt.customer?.id ??
       receipt.customerId,
-    saleNumber: receipt.sales?.invoiceNumber ?? '-',
+    saleNumber:
+      receipt.sales?.invoiceNumber ??
+      receipt.sale?.invoiceNumber ??
+      receipt.invoiceNumber ??
+      '-',
     customerName:
       receipt.customerName ??
       receipt.customer?.customerName ??

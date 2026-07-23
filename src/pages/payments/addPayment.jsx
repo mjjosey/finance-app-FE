@@ -103,7 +103,7 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
   };
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || !selectedPurchase?.supplierID) return;
 
     const fetchLookups = async () => {
       try {

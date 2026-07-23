@@ -103,10 +103,13 @@ export default function Sales() {
       console.error('Failed to fetch dropdown options:', err);
     }
   };
-
+  useEffect(() => {
+    if(showForm) {
+    fetchSaleFormOptions();
+    }
+  }, [showForm]);
   useEffect(() => {
     fetchSales();
-    fetchSaleFormOptions();
   }, []);
   useEffect(() => {
     setSales((prevSales) => prevSales.map(normalizeSale));

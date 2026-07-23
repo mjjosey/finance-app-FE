@@ -60,32 +60,8 @@ export default function Receipts() {
     if (!refreshKey) return;
     fetchReceipts(page, rowsPerPage);
   }, [refreshKey]);
-  console.log(receipts,"receipts");
   
-  const fetchReceiptFormOptions = async () => {
-    try {
-      const customerRes = await axios.get(
-        '/customers?pageNumber=0&pageSize=200&sortBy=customerName&sortOrder=asc',
-      );
-
-      const salePayload = saleRes?.data?.content ?? [];
-      const customerPayload = customerRes?.data?.content ?? [];
-
-      setCustomerOptions(
-        (Array.isArray(customerPayload) ? customerPayload : [])
-          .map((item) => ({
-            customerID: item.customerID ?? item.id,
-            customerName: item.customerName ?? item.name,
-          }))
-          .filter((item) => item.customerID),
-      );
-    } catch (err) {
-      console.error('Failed to fetch receipt dropdown options:', err);
-    }
-  };
-
   useEffect(() => {
-    fetchReceiptFormOptions();
     fetchReceipts(0, rowsPerPage);
   }, []);
 

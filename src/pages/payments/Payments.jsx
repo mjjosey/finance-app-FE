@@ -69,29 +69,7 @@ useEffect(() => {
     fetchPayments(page, rowsPerPage);
   }, [refreshKey]);
 
-  const fetchPaymentFormOptions = async () => {
-     try {
-      const supplierRes = await axios.get(
-        '/suppliers?pageNumber=0&pageSize=200&sortBy=supplierName&sortOrder=asc',
-      );
-
-      const supplierPayload = supplierRes?.data?.content ?? [];
-
-      setSupplierOptions(
-        (Array.isArray(supplierPayload) ? supplierPayload : [])
-          .map((item) => ({
-            supplierID: item.supplierID ?? item.id,
-            supplierName: item.supplierName ?? item.name,
-          }))
-          .filter((item) => item.supplierID),
-      );
-    } catch (err) {
-      console.error('Failed to fetch payment dropdown options:', err);
-    }
-  };
-
   useEffect(() => {
-    fetchPaymentFormOptions();
     fetchPayments(0, rowsPerPage);
   }, []);
 

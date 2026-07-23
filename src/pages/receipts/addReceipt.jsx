@@ -74,7 +74,7 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
   );
 
   const fetchCustomerSales = async (customerId) => {
-    if (!customerId) {
+    if (!customerId ) {
       setSales(allSales);
       return;
     }
@@ -102,7 +102,7 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
   }, [selectedCustomerId, allSales]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || !selectedSale?.customerID) return;
 
     const fetchLookups = async () => {
       try {

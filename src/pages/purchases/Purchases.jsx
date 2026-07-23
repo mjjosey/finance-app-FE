@@ -105,10 +105,15 @@ export default function Purchases() {
       console.error('Failed to fetch purchase dropdown options:', err);
     }
   };
+  useEffect(() => {
+    if(showForm) {
+    fetchPurchaseFormOptions();
+    }
+  }, [showForm]);
+
 
   useEffect(() => {
     fetchPurchases();
-    fetchPurchaseFormOptions();
   }, []);
 
   useEffect(() => {

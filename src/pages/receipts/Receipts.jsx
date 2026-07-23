@@ -47,9 +47,6 @@ export default function Receipts() {
       const payload = response?.data?.content ?? [];
       const normalizedReceipts = Array.isArray(payload) ? payload : [];
       setReceipts(normalizedReceipts.map(normalizeReceipt));
-      console.log('Normalized Receipts:', normalizedReceipts);
-      console.log('Normalized Receipts:', normalizedReceipts.map(normalizeReceipt));
-      
       setTotalReceipts(response?.data?.totalElements ?? normalizedReceipts.length);
       setError('');
     } catch (err) {

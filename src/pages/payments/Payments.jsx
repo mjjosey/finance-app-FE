@@ -20,7 +20,6 @@ export default function Payments() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const normalizePayment = (payment) => ({
-    ...payment,
     paymentID: payment.paymentID ?? payment.id ?? payment.paymentId,
     purchaseID:
       payment.purchase?.purchaseID ??
@@ -32,6 +31,11 @@ export default function Payments() {
       payment.supplierID ??
       payment.supplier?.id ??
       payment.supplierId,
+    purchaseNumber:
+      payment.purchase?.invoiceNumber ??
+      payment.purchase?.invoiceNumber ??
+      payment.invoiceNumber ??
+      '-',
     purchaseName:
       payment.purchaseName ??
       payment.purchase?.invoiceNumber ??
@@ -60,7 +64,11 @@ export default function Payments() {
       setLoading(false);
     }
   };
-
+useEffect(() => {
+    if (!refreshKey) return;
+    fetchReceipts(page, rowsPerPage);
+  }, [refreshKey]);
+  
   const fetchPaymentFormOptions = async () => {
      try {
       const supplierRes = await axios.get(

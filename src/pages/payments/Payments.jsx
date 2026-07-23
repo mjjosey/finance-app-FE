@@ -66,9 +66,9 @@ export default function Payments() {
   };
 useEffect(() => {
     if (!refreshKey) return;
-    fetchReceipts(page, rowsPerPage);
+    fetchPayments(page, rowsPerPage);
   }, [refreshKey]);
-  
+
   const fetchPaymentFormOptions = async () => {
      try {
       const supplierRes = await axios.get(

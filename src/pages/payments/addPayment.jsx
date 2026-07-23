@@ -11,7 +11,6 @@ import { useThemeMode } from '../../ThemeProvider';
 export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
   const [purchases, setPurchases] = useState([]);
   const [allPurchases, setAllPurchases] = useState([]);
-  const [purchaseOptions, setPurchaseOptions] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -24,6 +23,7 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { isSubmitting },
   } = useForm({
     defaultValues: {
@@ -35,8 +35,10 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
   });
 
   const selectedSupplier = useWatch({ control, name: 'supplier' });
+    const selectedPurchase = useWatch({ control, name: 'purchase' });
   const selectedSupplierId =
     selectedSupplier?.value ?? selectedSupplier?.supplierID ?? selectedSupplier?.id ?? null;
+  const selectedPurchaseId = selectedPurchase?.value ?? selectedPurchase?.purchaseID ?? selectedPurchase?.id ?? null;
 
   const normalizedPurchases = useMemo(
     () =>
@@ -52,9 +54,16 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
       })),
     [purchases],
   );
-  useEffect(() => {
-    fetchSupplierPurchases(selectedSupplierId);
-  }, [selectedSupplierId]);
+
+    const purchaseOptions = useMemo(
+    () =>
+      normalizedPurchases.map((item) => ({
+        label: item.invoiceNumber || `Purchase #${item.purchaseID}`,
+        value: item.purchaseID,
+        supplierID: item.supplierID,
+      })),
+    [normalizedPurchases],
+  );
 
   const supplierOptions = useMemo(
     () =>
@@ -64,12 +73,10 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
       })),
     [suppliers],
   );
-  const mapPurchasesToOptions = (purchaseList) =>
-    purchaseList.map((item) => ({
-      label: item.invoiceNumber || `Purchase #${item.purchaseID}`,
-      value: item.purchaseID,
-      supplierID: item.supplierID,
-    }));
+
+  useEffect(() => {
+    fetchSupplierPurchases(selectedSupplierId);
+  }, [selectedSupplierId]);
 
   const fetchSupplierPurchases = async (supplierId) => {
     if (!supplierId) {
@@ -78,15 +85,22 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
     }
 
         try {
-      const response = await axios.get(`/purchases?supplierId=${supplierId}`);
+      const response = await axios.get(`/purchases/${supplierId}`);
       const payload = response?.data?.content ?? [];
       const normalizedSupplierPurchases = Array.isArray(payload) ? payload : [];
       setPurchases(normalizedSupplierPurchases);
+      const selectedStillValid = normalizedSupplierPurchases.some(
+        (item) => (item.purchaseID ?? item.id) === selectedPurchaseId,
+      );
+      if (selectedPurchaseId && !selectedStillValid) {
+        setValue('purchase', null);
+      }
     } catch (err) {
       console.error('Failed to fetch purchases for supplier:', err);
       setError('Unable to load purchases for the selected supplier.');
     }
   };
+console.log(selectedRecord,"selectedRecord");
 
   useEffect(() => {
     if (!open) return;
@@ -101,20 +115,8 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
         const initialPurchases = Array.isArray(purchaseRes.data)
           ? purchaseRes.data
           : purchaseRes.data?.content || [];
-        const normalizedInitialPurchases = initialPurchases.map((item) => ({
-          ...item,
-          purchaseID: item.purchaseID ?? item.id,
-          supplierID: item.supplier?.supplierID ?? item.supplierID ?? item.supplier?.id ?? null,
-          invoiceNumber:
-            item.invoiceNumber ??
-            item.invoiceNo ??
-            item.invoice ??
-            `Purchase #${item.purchaseID ?? item.id}`,
-        }));
-
         setAllPurchases(initialPurchases);
         setPurchases(initialPurchases);
-        setPurchaseOptions(mapPurchasesToOptions(normalizedInitialPurchases));
         setSuppliers(
           Array.isArray(supplierRes.data) ? supplierRes.data : supplierRes.data?.content || [],
         );
@@ -125,9 +127,32 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
 
     fetchLookups();
   }, [open]);
+ useEffect(() => {
+    if (!selectedPurchase?.supplierID) return;
 
+    const purchaseSupplierId = selectedPurchase.supplierID;
+    const currentSupplierId =
+      selectedSupplier?.value ?? selectedSupplier?.supplierID ?? selectedSupplier?.id ?? null;
+
+    if (currentSupplierId === purchaseSupplierId) return;
+
+    const matchedSupplier = supplierOptions.find((option) => option.value === purchaseSupplierId);
+    if (matchedSupplier) {
+      setValue('supplier', matchedSupplier, { shouldDirty: true, shouldValidate: true });
+    }
+  }, [selectedPurchase, selectedSupplier, supplierOptions, setValue]);
+   useEffect(() => {
+    if (!open || selectedRecord) return;
+
+    reset({
+          amount: '',
+      paymentDate: '',
+      purchase: null,
+      supplier: null
+    });
+  }, [open, selectedRecord, reset]);
   useEffect(() => {
-    if (!open) return;
+    if (!open || !selectedRecord) return;
 
     const selectedPurchaseId =
       selectedRecord?.purchase?.purchaseID ??
@@ -164,16 +189,6 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
               `Supplier #${selectedSupplierIdFromRecord}`,
           }
         : null);
-
-    if (selectedRecord) {
-      reset({
-        amount: selectedRecord.amount ?? '',
-        paymentDate: selectedRecord.paymentDate ?? '',
-        purchase: selectedPurchaseOption,
-        supplier: selectedSupplierOption,
-      });
-      return;
-    }
 
     reset({
       amount: '',

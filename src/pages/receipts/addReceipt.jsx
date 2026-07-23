@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { Alert, Box, Button, Grid, Paper, Typography } from '@mui/material';
+import { Box, Button, Grid, Paper } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import axios from '../../api/axios';
@@ -18,7 +18,6 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
   const isDark = mode === 'dark';
   const surfaceColor = isDark ? '#121212' : '#ffffff';
   const borderColor = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)';
-  const [saleOptions, setSaleOptions] = useState([]);
   const {
     control,
     handleSubmit,
@@ -38,6 +37,7 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
   const selectedSale = useWatch({ control, name: 'sale' });
   const selectedCustomerId =
     selectedCustomer?.value ?? selectedCustomer?.customerID ?? selectedCustomer?.id ?? null;
+  const selectedSaleId = selectedSale?.value ?? selectedSale?.salesID ?? selectedSale?.id ?? null;
 
   const normalizedSales = useMemo(
     () =>
@@ -53,33 +53,16 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
       })),
     [sales],
   );
-  const filteredSalesList = async () => {
-    const customerId =
-      selectedCustomer?.value ?? selectedCustomer?.customerID ?? selectedCustomer?.id ?? null;
-    try {
-      const customerRes = await axios.get(`/sales/${customerId}`);
-      const filteredSales = customerId
-        ? normalizedSales.filter((item) => item.customerID === customerId)
-        : normalizedSales;
 
-      const options = filteredSales.map((item) => ({
+  const saleOptions = useMemo(
+    () =>
+      normalizedSales.map((item) => ({
         label: item.invoiceNumber || `Sale #${item.salesID}`,
         value: item.salesID,
         customerID: item.customerID,
-      }));
-      console.log(options, 'filteredSales');
-      setSaleOptions(options);
-    } catch (err) {
-      console.log(err.response.data.message);
-
-      setSaleOptions([]);
-    }
-  };
-  useEffect(() => {
-    if (selectedCustomerId) {
-      filteredSalesList();
-    }
-  }, [selectedCustomer?.value]);
+      })),
+    [normalizedSales],
+  );
 
   const customerOptions = useMemo(
     () =>
@@ -101,11 +84,22 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
       const payload = response?.data?.content ?? [];
       const normalizedCustomerSales = Array.isArray(payload) ? payload : [];
       setSales(normalizedCustomerSales);
+
+      const selectedStillValid = normalizedCustomerSales.some(
+        (item) => (item.salesID ?? item.id) === selectedSaleId,
+      );
+      if (selectedSaleId && !selectedStillValid) {
+        setValue('sale', null);
+      }
     } catch (err) {
       console.error('Failed to fetch sales for customer:', err);
       setError('Unable to load sales for the selected customer.');
     }
   };
+
+  useEffect(() => {
+    fetchCustomerSales(selectedCustomerId);
+  }, [selectedCustomerId, allSales]);
 
   useEffect(() => {
     if (!open) return;
@@ -122,12 +116,6 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
           : saleRes.data?.content || [];
         setAllSales(initialSales);
         setSales(initialSales);
-        const options = initialSales.map((item) => ({
-          label: item.invoiceNumber || `Sale #${item.salesID}`,
-          value: item.salesID,
-          customerID: item.customerID,
-        }));
-        setSaleOptions(options);
         setCustomers(
           Array.isArray(customerRes.data) ? customerRes.data : customerRes.data?.content || [],
         );
@@ -138,38 +126,77 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
 
     fetchLookups();
   }, [open]);
-console.log(saleOptions,"saleopt");
 
   useEffect(() => {
-    if (!open) return;
+    if (!selectedSale?.customerID) return;
+
+    const saleCustomerId = selectedSale.customerID;
+    const currentCustomerId =
+      selectedCustomer?.value ?? selectedCustomer?.customerID ?? selectedCustomer?.id ?? null;
+
+    if (currentCustomerId === saleCustomerId) return;
+
+    const matchedCustomer = customerOptions.find((option) => option.value === saleCustomerId);
+    if (matchedCustomer) {
+      setValue('customer', matchedCustomer, { shouldDirty: true, shouldValidate: true });
+    }
+  }, [selectedSale, selectedCustomer, customerOptions, setValue]);
+
+  useEffect(() => {
+    if (!open || selectedRecord) return;
+
+    reset({
+      amount: '',
+      receiptDate: '',
+      sale: null,
+      customer: null,
+    });
+  }, [open, selectedRecord, reset]);
+
+  useEffect(() => {
+    if (!open || !selectedRecord) return;
+
+    const selectedSaleIdFromRecord =
+      selectedRecord?.sales?.salesID ??
+      selectedRecord?.sale?.salesID ??
+      selectedRecord?.salesID ??
+      selectedRecord?.saleId ??
+      null;
+    const selectedCustomerIdFromRecord =
+      selectedRecord?.customer?.customerID ?? selectedRecord?.customerID ?? selectedRecord?.customerId ?? null;
 
     const selectedSaleOption =
-      saleOptions.find(
-        (option) => option.value === (selectedRecord?.sales?.salesID || selectedRecord?.salesID),
-      ) || null;
+      saleOptions.find((option) => option.value === selectedSaleIdFromRecord) ??
+      (selectedSaleIdFromRecord
+        ? {
+            value: selectedSaleIdFromRecord,
+            label:
+              selectedRecord?.sales?.invoiceNumber ??
+              selectedRecord?.sale?.invoiceNumber ??
+              selectedRecord?.saleNumber ??
+              `Sale #${selectedSaleIdFromRecord}`,
+            customerID: selectedCustomerIdFromRecord,
+          }
+        : null);
     const selectedCustomerOption =
-      customerOptions.find(
-        (option) =>
-          option.value === (selectedRecord?.customer?.customerID || selectedRecord?.customerID),
-      ) || null;
-console.log(selectedSaleOption, 'selectedSaleOption');
+      customerOptions.find((option) => option.value === selectedCustomerIdFromRecord) ??
+      (selectedCustomerIdFromRecord
+        ? {
+            value: selectedCustomerIdFromRecord,
+            label:
+              selectedRecord?.customer?.customerName ??
+              selectedRecord?.customerName ??
+              `Customer #${selectedCustomerIdFromRecord}`,
+          }
+        : null);
 
-    if (selectedRecord) {
-      reset({
-        amount: selectedRecord.amount ?? '',
-        receiptDate: selectedRecord.receiptDate ?? '',
-        sale: selectedSaleOption,
-        customer: selectedCustomerOption,
-      });
-    } else {
-      reset({
-        amount: '',
-        receiptDate: '',
-        sale: null,
-        customer: null,
-      });
-    }
-  }, [open, selectedRecord, saleOptions?.length, customers, reset]);
+    reset({
+      amount: selectedRecord.amount ?? '',
+      receiptDate: selectedRecord.receiptDate ?? '',
+      sale: selectedSaleOption,
+      customer: selectedCustomerOption,
+    });
+  }, [open, selectedRecord, saleOptions, customerOptions, reset]);
 
   const onSubmit = async (values) => {
     setLoading(true);
@@ -197,7 +224,6 @@ console.log(selectedSaleOption, 'selectedSaleOption');
       setLoading(false);
     }
   };
-console.log(customerOptions,"customerOptions");
 
   return (
     <Box sx={{ bgcolor: isDark ? '#0f172a' : '#f8fafc', p: 2, borderRadius: 2 }}>

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Alert } from '@mui/material';
-import PageTemplate from '../PageTemplate';
 import ListingTemplate from '../../listing/ListingTemplate';
 import { receiptHeaders } from '../../constants';
 import AddReceipt from './addReceipt';

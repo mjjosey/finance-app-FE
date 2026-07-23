@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { Alert, Box, Button, Grid, Paper, Typography } from '@mui/material';
+import { Box, Button, Grid, Paper } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import axios from '../../api/axios';
@@ -35,10 +35,11 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
   });
 
   const selectedSupplier = useWatch({ control, name: 'supplier' });
-    const selectedPurchase = useWatch({ control, name: 'purchase' });
+  const selectedPurchase = useWatch({ control, name: 'purchase' });
   const selectedSupplierId =
     selectedSupplier?.value ?? selectedSupplier?.supplierID ?? selectedSupplier?.id ?? null;
-  const selectedPurchaseId = selectedPurchase?.value ?? selectedPurchase?.purchaseID ?? selectedPurchase?.id ?? null;
+  const selectedPurchaseId =
+    selectedPurchase?.value ?? selectedPurchase?.purchaseID ?? selectedPurchase?.id ?? null;
 
   const normalizedPurchases = useMemo(
     () =>
@@ -55,7 +56,7 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
     [purchases],
   );
 
-    const purchaseOptions = useMemo(
+  const purchaseOptions = useMemo(
     () =>
       normalizedPurchases.map((item) => ({
         label: item.invoiceNumber || `Purchase #${item.purchaseID}`,
@@ -84,7 +85,7 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
       return;
     }
 
-        try {
+    try {
       const response = await axios.get(`/purchases/${supplierId}`);
       const payload = response?.data?.content ?? [];
       const normalizedSupplierPurchases = Array.isArray(payload) ? payload : [];
@@ -100,7 +101,6 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
       setError('Unable to load purchases for the selected supplier.');
     }
   };
-console.log(selectedRecord,"selectedRecord");
 
   useEffect(() => {
     if (!open) return;
@@ -127,7 +127,7 @@ console.log(selectedRecord,"selectedRecord");
 
     fetchLookups();
   }, [open]);
- useEffect(() => {
+  useEffect(() => {
     if (!selectedPurchase?.supplierID) return;
 
     const purchaseSupplierId = selectedPurchase.supplierID;
@@ -141,20 +141,21 @@ console.log(selectedRecord,"selectedRecord");
       setValue('supplier', matchedSupplier, { shouldDirty: true, shouldValidate: true });
     }
   }, [selectedPurchase, selectedSupplier, supplierOptions, setValue]);
-   useEffect(() => {
-    if (!open || selectedRecord) return;
 
-    reset({
-          amount: '',
-      paymentDate: '',
-      purchase: null,
-      supplier: null
-    });
-  }, [open, selectedRecord, reset]);
   useEffect(() => {
-    if (!open || !selectedRecord) return;
+    if (!open) return;
 
-    const selectedPurchaseId =
+    if (!selectedRecord) {
+      reset({
+        amount: '',
+        paymentDate: '',
+        purchase: null,
+        supplier: null,
+      });
+      return;
+    }
+
+    const selectedPurchaseIdFromRecord =
       selectedRecord?.purchase?.purchaseID ??
       selectedRecord?.purchaseID ??
       selectedRecord?.purchaseId ??
@@ -166,14 +167,14 @@ console.log(selectedRecord,"selectedRecord");
       null;
 
     const selectedPurchaseOption =
-      purchaseOptions.find((option) => option.value === selectedPurchaseId) ??
-      (selectedPurchaseId
+      purchaseOptions.find((option) => option.value === selectedPurchaseIdFromRecord) ??
+      (selectedPurchaseIdFromRecord
         ? {
-            value: selectedPurchaseId,
+            value: selectedPurchaseIdFromRecord,
             label:
               selectedRecord?.purchase?.invoiceNumber ??
               selectedRecord?.purchaseName ??
-              `Purchase #${selectedPurchaseId}`,
+              `Purchase #${selectedPurchaseIdFromRecord}`,
             supplierID: selectedSupplierIdFromRecord,
           }
         : null);
@@ -191,12 +192,23 @@ console.log(selectedRecord,"selectedRecord");
         : null);
 
     reset({
-      amount: '',
-      paymentDate: '',
-      purchase: null,
-      supplier: null,
+      amount: selectedRecord.amount ?? '',
+      paymentDate: selectedRecord.paymentDate ?? '',
+      purchase: selectedPurchaseOption,
+      supplier: selectedSupplierOption,
     });
   }, [open, selectedRecord, purchaseOptions, supplierOptions, reset]);
+
+  useEffect(() => {
+    if (!open || selectedRecord) return;
+
+    if (selectedSupplier && selectedSupplier.value) {
+      setValue('supplier', selectedSupplier);
+    }
+    if (selectedPurchase && selectedPurchase.value) {
+      setValue('purchase', selectedPurchase);
+    }
+  }, [open, selectedRecord, selectedSupplier, selectedPurchase, setValue]);
 
   const onSubmit = async (values) => {
     setLoading(true);

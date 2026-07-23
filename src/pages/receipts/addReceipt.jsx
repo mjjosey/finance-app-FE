@@ -138,6 +138,7 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
 
     fetchLookups();
   }, [open]);
+console.log(saleOptions,"saleopt");
 
   useEffect(() => {
     if (!open) return;
@@ -151,6 +152,7 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
         (option) =>
           option.value === (selectedRecord?.customer?.customerID || selectedRecord?.customerID),
       ) || null;
+console.log(selectedSaleOption, 'selectedSaleOption');
 
     if (selectedRecord) {
       reset({
@@ -167,7 +169,7 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
         customer: null,
       });
     }
-  }, [open, selectedRecord, sales, customers, reset]);
+  }, [open, selectedRecord, saleOptions?.length, customers, reset]);
 
   const onSubmit = async (values) => {
     setLoading(true);
@@ -195,6 +197,7 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
       setLoading(false);
     }
   };
+console.log(customerOptions,"customerOptions");
 
   return (
     <Box sx={{ bgcolor: isDark ? '#0f172a' : '#f8fafc', p: 2, borderRadius: 2 }}>

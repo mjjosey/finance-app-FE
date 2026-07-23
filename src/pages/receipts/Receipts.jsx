@@ -21,7 +21,7 @@ export default function Receipts() {
 
   const normalizeReceipt = (receipt) => ({
     receiptID: receipt.receiptID ?? receipt.id ?? receipt.receiptId,
-    salesID: receipt.sale?.salesID ?? receipt.salesID ?? receipt.sale?.id ?? receipt.saleId,
+    salesID: receipt.sales?.salesID ?? receipt.salesID ?? receipt.sale?.id ?? receipt.saleId,
     customerID:
       receipt.customer?.customerID ??
       receipt.customerID ??
@@ -63,6 +63,8 @@ export default function Receipts() {
     if (!refreshKey) return;
     fetchReceipts(page, rowsPerPage);
   }, [refreshKey]);
+  console.log(receipts,"receipts");
+  
   const fetchReceiptFormOptions = async () => {
     try {
       const customerRes = await axios.get(
@@ -109,6 +111,8 @@ export default function Receipts() {
   };
 
   const handleEdit = (record) => {
+    console.log(record,"record");
+    
     setSelectedRecord(record);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });

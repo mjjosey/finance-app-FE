@@ -23,15 +23,24 @@ export default function Receipts() {
     ...receipt,
     receiptID: receipt.receiptID ?? receipt.id ?? receipt.receiptId,
     salesID: receipt.sale?.salesID ?? receipt.salesID ?? receipt.sale?.id ?? receipt.saleId,
-    customerID: receipt.customer?.customerID ?? receipt.customerID ?? receipt.customer?.id ?? receipt.customerId,
-    saleNumber:
-       receipt.sales?.invoiceNumber
-      ?? '-',
+    customerID:
+      receipt.customer?.customerID ??
+      receipt.customerID ??
+      receipt.customer?.id ??
+      receipt.customerId,
+    saleNumber: receipt.sales?.invoiceNumber ?? '-',
     customerName:
-      receipt.customerName
-      ?? receipt.customer?.customerName
-      ?? customerOptions.find((option) => option.customerID === (receipt.customer?.customerID ?? receipt.customerID ?? receipt.customer?.id ?? receipt.customerId))?.customerName
-      ?? '-',
+      receipt.customerName ??
+      receipt.customer?.customerName ??
+      customerOptions.find(
+        (option) =>
+          option.customerID ===
+          (receipt.customer?.customerID ??
+            receipt.customerID ??
+            receipt.customer?.id ??
+            receipt.customerId),
+      )?.customerName ??
+      '-',
     amount: receipt.amount ?? receipt.Amount ?? '-',
     receiptDate: receipt.receiptDate ?? receipt.date ?? '-',
   });
@@ -55,11 +64,12 @@ export default function Receipts() {
 
   const fetchReceiptFormOptions = async () => {
     try {
-      const customerRes = await axios.get('/customers?pageNumber=0&pageSize=200&sortBy=customerName&sortOrder=asc');
+      const customerRes = await axios.get(
+        '/customers?pageNumber=0&pageSize=200&sortBy=customerName&sortOrder=asc',
+      );
 
       const salePayload = saleRes?.data?.content ?? [];
       const customerPayload = customerRes?.data?.content ?? [];
-
 
       setCustomerOptions(
         (Array.isArray(customerPayload) ? customerPayload : [])
@@ -78,13 +88,6 @@ export default function Receipts() {
     fetchReceiptFormOptions();
     fetchReceipts(0, rowsPerPage);
   }, []);
-
- 
-
-  useEffect(() => {
-    if (!refreshKey) return;
-    fetchReceipts(page, rowsPerPage);
-  }, [refreshKey]);
 
   const handleChangePage = async (event, newPage, rowsPerPageValue) => {
     await fetchReceipts(newPage, rowsPerPageValue);
@@ -124,7 +127,6 @@ export default function Receipts() {
       setError('Unable to delete the receipt. Please try again.');
     }
   };
-console.log(selectedRecord,"selectedRecord");
 
   return (
     <>

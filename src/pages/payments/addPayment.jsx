@@ -20,7 +20,12 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
   const surfaceColor = isDark ? '#121212' : '#ffffff';
   const borderColor = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)';
 
-  const { control, handleSubmit, reset, formState: { isSubmitting } } = useForm({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm({
     defaultValues: {
       amount: '',
       paymentDate: '',
@@ -30,7 +35,8 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
   });
 
   const selectedSupplier = useWatch({ control, name: 'supplier' });
-  const selectedSupplierId = selectedSupplier?.value ?? selectedSupplier?.supplierID ?? selectedSupplier?.id ?? null;
+  const selectedSupplierId =
+    selectedSupplier?.value ?? selectedSupplier?.supplierID ?? selectedSupplier?.id ?? null;
 
   const normalizedPurchases = useMemo(
     () =>
@@ -38,17 +44,25 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
         ...item,
         purchaseID: item.purchaseID ?? item.id,
         supplierID: item.supplier?.supplierID ?? item.supplierID ?? item.supplier?.id ?? null,
-        invoiceNumber: item.invoiceNumber ?? item.invoiceNo ?? item.invoice ?? `Purchase #${item.purchaseID ?? item.id}`,
+        invoiceNumber:
+          item.invoiceNumber ??
+          item.invoiceNo ??
+          item.invoice ??
+          `Purchase #${item.purchaseID ?? item.id}`,
       })),
-    [purchases]
+    [purchases],
   );
-useEffect(() => {
-fetchSupplierPurchases(selectedSupplierId);
-}, [selectedSupplierId]);
+  useEffect(() => {
+    fetchSupplierPurchases(selectedSupplierId);
+  }, [selectedSupplierId]);
 
   const supplierOptions = useMemo(
-    () => suppliers.map((item) => ({ label: item.supplierName || `Supplier #${item.supplierID}`, value: item.supplierID })),
-    [suppliers]
+    () =>
+      suppliers.map((item) => ({
+        label: item.supplierName || `Supplier #${item.supplierID}`,
+        value: item.supplierID,
+      })),
+    [suppliers],
   );
   const mapPurchasesToOptions = (purchaseList) =>
     purchaseList.map((item) => ({
@@ -56,8 +70,6 @@ fetchSupplierPurchases(selectedSupplierId);
       value: item.purchaseID,
       supplierID: item.supplierID,
     }));
-
-
 
   const fetchSupplierPurchases = async (supplierId) => {
     if (!supplierId) {
@@ -76,7 +88,11 @@ fetchSupplierPurchases(selectedSupplierId);
         ...item,
         purchaseID: item.purchaseID ?? item.id,
         supplierID: item.supplier?.supplierID ?? item.supplierID ?? item.supplier?.id ?? null,
-        invoiceNumber: item.invoiceNumber ?? item.invoiceNo ?? item.invoice ?? `Purchase #${item.purchaseID ?? item.id}`,
+        invoiceNumber:
+          item.invoiceNumber ??
+          item.invoiceNo ??
+          item.invoice ??
+          `Purchase #${item.purchaseID ?? item.id}`,
       }));
       setPurchaseOptions(mapPurchasesToOptions(normalizedSupplierPurchases));
       setError('');
@@ -84,7 +100,8 @@ fetchSupplierPurchases(selectedSupplierId);
       console.error('Failed to fetch purchases for supplier:', err);
 
       const fallbackPurchases = allPurchases.filter((item) => {
-        const supplierID = item.supplier?.supplierID ?? item.supplierID ?? item.supplier?.id ?? null;
+        const supplierID =
+          item.supplier?.supplierID ?? item.supplierID ?? item.supplier?.id ?? null;
         return supplierID === supplierId;
       });
 
@@ -92,12 +109,18 @@ fetchSupplierPurchases(selectedSupplierId);
         ...item,
         purchaseID: item.purchaseID ?? item.id,
         supplierID: item.supplier?.supplierID ?? item.supplierID ?? item.supplier?.id ?? null,
-        invoiceNumber: item.invoiceNumber ?? item.invoiceNo ?? item.invoice ?? `Purchase #${item.purchaseID ?? item.id}`,
+        invoiceNumber:
+          item.invoiceNumber ??
+          item.invoiceNo ??
+          item.invoice ??
+          `Purchase #${item.purchaseID ?? item.id}`,
       }));
 
       setPurchases(fallbackPurchases);
       setPurchaseOptions(mapPurchasesToOptions(normalizedFallbackPurchases));
-      setError('Unable to load purchases for the selected supplier from server. Showing available local results.');
+      setError(
+        'Unable to load purchases for the selected supplier from server. Showing available local results.',
+      );
     }
   };
 
@@ -111,18 +134,26 @@ fetchSupplierPurchases(selectedSupplierId);
           axios.get('/suppliers'),
         ]);
 
-        const initialPurchases = Array.isArray(purchaseRes.data) ? purchaseRes.data : purchaseRes.data?.content || [];
+        const initialPurchases = Array.isArray(purchaseRes.data)
+          ? purchaseRes.data
+          : purchaseRes.data?.content || [];
         const normalizedInitialPurchases = initialPurchases.map((item) => ({
           ...item,
           purchaseID: item.purchaseID ?? item.id,
           supplierID: item.supplier?.supplierID ?? item.supplierID ?? item.supplier?.id ?? null,
-          invoiceNumber: item.invoiceNumber ?? item.invoiceNo ?? item.invoice ?? `Purchase #${item.purchaseID ?? item.id}`,
+          invoiceNumber:
+            item.invoiceNumber ??
+            item.invoiceNo ??
+            item.invoice ??
+            `Purchase #${item.purchaseID ?? item.id}`,
         }));
 
         setAllPurchases(initialPurchases);
         setPurchases(initialPurchases);
         setPurchaseOptions(mapPurchasesToOptions(normalizedInitialPurchases));
-        setSuppliers(Array.isArray(supplierRes.data) ? supplierRes.data : supplierRes.data?.content || []);
+        setSuppliers(
+          Array.isArray(supplierRes.data) ? supplierRes.data : supplierRes.data?.content || [],
+        );
       } catch (err) {
         setError('Unable to load dropdown data.');
       }
@@ -134,23 +165,39 @@ fetchSupplierPurchases(selectedSupplierId);
   useEffect(() => {
     if (!open) return;
 
-    const selectedPurchaseId = selectedRecord?.purchase?.purchaseID ?? selectedRecord?.purchaseID ?? selectedRecord?.purchaseId ?? null;
-    const selectedSupplierIdFromRecord = selectedRecord?.supplier?.supplierID ?? selectedRecord?.supplierID ?? selectedRecord?.supplierId ?? null;
+    const selectedPurchaseId =
+      selectedRecord?.purchase?.purchaseID ??
+      selectedRecord?.purchaseID ??
+      selectedRecord?.purchaseId ??
+      null;
+    const selectedSupplierIdFromRecord =
+      selectedRecord?.supplier?.supplierID ??
+      selectedRecord?.supplierID ??
+      selectedRecord?.supplierId ??
+      null;
 
-    const selectedPurchaseOption = purchaseOptions.find((option) => option.value === selectedPurchaseId)
-      ?? (selectedPurchaseId
+    const selectedPurchaseOption =
+      purchaseOptions.find((option) => option.value === selectedPurchaseId) ??
+      (selectedPurchaseId
         ? {
             value: selectedPurchaseId,
-            label: selectedRecord?.purchase?.invoiceNumber ?? selectedRecord?.purchaseName ?? `Purchase #${selectedPurchaseId}`,
+            label:
+              selectedRecord?.purchase?.invoiceNumber ??
+              selectedRecord?.purchaseName ??
+              `Purchase #${selectedPurchaseId}`,
             supplierID: selectedSupplierIdFromRecord,
           }
         : null);
 
-    const selectedSupplierOption = supplierOptions.find((option) => option.value === selectedSupplierIdFromRecord)
-      ?? (selectedSupplierIdFromRecord
+    const selectedSupplierOption =
+      supplierOptions.find((option) => option.value === selectedSupplierIdFromRecord) ??
+      (selectedSupplierIdFromRecord
         ? {
             value: selectedSupplierIdFromRecord,
-            label: selectedRecord?.supplier?.supplierName ?? selectedRecord?.supplierName ?? `Supplier #${selectedSupplierIdFromRecord}`,
+            label:
+              selectedRecord?.supplier?.supplierName ??
+              selectedRecord?.supplierName ??
+              `Supplier #${selectedSupplierIdFromRecord}`,
           }
         : null);
 
@@ -172,8 +219,6 @@ fetchSupplierPurchases(selectedSupplierId);
     });
   }, [open, selectedRecord, purchaseOptions, supplierOptions, reset]);
 
-
- 
   const onSubmit = async (values) => {
     setLoading(true);
     setError('');
@@ -202,9 +247,18 @@ fetchSupplierPurchases(selectedSupplierId);
   };
 
   return (
-   <Box sx={{ bgcolor: isDark ? '#0f172a' : '#f8fafc', p: 2, borderRadius: 2 }}>
-      <Paper elevation={1} sx={{ p: 2, mb: 2, bgcolor: surfaceColor, border: `1px solid ${borderColor}` }}>
-        <Grid container spacing={2} rowSpacing={3} component="form" onSubmit={handleSubmit(onSubmit)}>
+    <Box sx={{ bgcolor: isDark ? '#0f172a' : '#f8fafc', p: 2, borderRadius: 2 }}>
+      <Paper
+        elevation={1}
+        sx={{ p: 2, mb: 2, bgcolor: surfaceColor, border: `1px solid ${borderColor}` }}
+      >
+        <Grid
+          container
+          spacing={2}
+          rowSpacing={3}
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <Grid size={{ xs: 12, md: 6 }} />
           <Grid size={{ xs: 12, md: 4 }} />
           <Grid size={{ xs: 12, md: 2 }} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
@@ -212,7 +266,7 @@ fetchSupplierPurchases(selectedSupplierId);
               Close
             </Button>
           </Grid>
-           <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <RhfAutocomplete
               control={control}
               name="supplier"
@@ -223,7 +277,7 @@ fetchSupplierPurchases(selectedSupplierId);
               required
             />
           </Grid>
-    <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <RhfAutocomplete
               control={control}
               name="purchase"
@@ -235,16 +289,8 @@ fetchSupplierPurchases(selectedSupplierId);
             />
           </Grid>
 
-         
-
           <Grid size={{ xs: 12, md: 6 }}>
-            <RhfTextField
-              control={control}
-              name="amount"
-              label="Amount"
-              type="number"
-              required
-            />
+            <RhfTextField control={control} name="amount" label="Amount" type="number" required />
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
@@ -254,14 +300,19 @@ fetchSupplierPurchases(selectedSupplierId);
               label="Payment Date"
               type="date"
               required
-             slotProps={{
-    inputLabel: { shrink: true } 
-  }} />
+              slotProps={{
+                inputLabel: { shrink: true },
+              }}
+            />
           </Grid>
-        
 
           <Grid size={{ xs: 12 }}>
-            <Button type="submit" variant="contained" startIcon={<SaveIcon />} disabled={isSubmitting || loading}>
+            <Button
+              type="submit"
+              variant="contained"
+              startIcon={<SaveIcon />}
+              disabled={isSubmitting || loading}
+            >
               {loading ? 'Saving...' : selectedRecord ? 'Update Payment' : 'Save Payment'}
             </Button>
           </Grid>

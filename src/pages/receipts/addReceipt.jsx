@@ -18,8 +18,14 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
   const isDark = mode === 'dark';
   const surfaceColor = isDark ? '#121212' : '#ffffff';
   const borderColor = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)';
-const [saleOptions, setSaleOptions] = useState([]);
-  const { control, handleSubmit, reset, setValue, formState: { isSubmitting } } = useForm({
+  const [saleOptions, setSaleOptions] = useState([]);
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { isSubmitting },
+  } = useForm({
     defaultValues: {
       amount: '',
       receiptDate: '',
@@ -30,7 +36,8 @@ const [saleOptions, setSaleOptions] = useState([]);
 
   const selectedCustomer = useWatch({ control, name: 'customer' });
   const selectedSale = useWatch({ control, name: 'sale' });
-  const selectedCustomerId = selectedCustomer?.value ?? selectedCustomer?.customerID ?? selectedCustomer?.id ?? null;
+  const selectedCustomerId =
+    selectedCustomer?.value ?? selectedCustomer?.customerID ?? selectedCustomer?.id ?? null;
 
   const normalizedSales = useMemo(
     () =>
@@ -38,44 +45,49 @@ const [saleOptions, setSaleOptions] = useState([]);
         ...item,
         salesID: item.salesID ?? item.id,
         customerID: item.customer?.customerID ?? item.customerID ?? item.customer?.id ?? null,
-        invoiceNumber: item.invoiceNumber ?? item.invoiceNo ?? item.invoice ?? `Sale #${item.salesID ?? item.id}`,
+        invoiceNumber:
+          item.invoiceNumber ??
+          item.invoiceNo ??
+          item.invoice ??
+          `Sale #${item.salesID ?? item.id}`,
       })),
-    [sales]
+    [sales],
   );
-    const filteredSalesList = async()=>{
-        const customerId = selectedCustomer?.value ?? selectedCustomer?.customerID ?? selectedCustomer?.id ?? null;
-try {
+  const filteredSalesList = async () => {
+    const customerId =
+      selectedCustomer?.value ?? selectedCustomer?.customerID ?? selectedCustomer?.id ?? null;
+    try {
       const customerRes = await axios.get(`/sales/${customerId}`);
       const filteredSales = customerId
         ? normalizedSales.filter((item) => item.customerID === customerId)
         : normalizedSales;
 
-    const options = filteredSales.map((item) => ({
-      label: item.invoiceNumber || `Sale #${item.salesID}`,
-      value: item.salesID,
-      customerID: item.customerID,
-    }));
-    console.log(options, "filteredSales");
-    setSaleOptions(options);
-  }catch (err) {
-    console.log( err.response.data.message);
-  
-  setSaleOptions([]);
-  }
-  
-  }
-   useEffect(() => {
-    if (selectedCustomerId){
+      const options = filteredSales.map((item) => ({
+        label: item.invoiceNumber || `Sale #${item.salesID}`,
+        value: item.salesID,
+        customerID: item.customerID,
+      }));
+      console.log(options, 'filteredSales');
+      setSaleOptions(options);
+    } catch (err) {
+      console.log(err.response.data.message);
 
+      setSaleOptions([]);
+    }
+  };
+  useEffect(() => {
+    if (selectedCustomerId) {
       filteredSalesList();
     }
-
   }, [selectedCustomer?.value]);
-console.log(saleOptions,"saleOptions");
 
   const customerOptions = useMemo(
-    () => customers.map((item) => ({ label: item.customerName || `Customer #${item.customerID}`, value: item.customerID })),
-    [customers]
+    () =>
+      customers.map((item) => ({
+        label: item.customerName || `Customer #${item.customerID}`,
+        value: item.customerID,
+      })),
+    [customers],
   );
 
   const fetchCustomerSales = async (customerId) => {
@@ -94,7 +106,6 @@ console.log(saleOptions,"saleOptions");
       setError('Unable to load sales for the selected customer.');
     }
   };
-console.log(sales,allSales,saleOptions,"ppppppppppppp");
 
   useEffect(() => {
     if (!open) return;
@@ -106,17 +117,20 @@ console.log(sales,allSales,saleOptions,"ppppppppppppp");
           axios.get('/customers'),
         ]);
 
-        const initialSales = Array.isArray(saleRes.data) ? saleRes.data : saleRes.data?.content || [];
+        const initialSales = Array.isArray(saleRes.data)
+          ? saleRes.data
+          : saleRes.data?.content || [];
         setAllSales(initialSales);
         setSales(initialSales);
-            const options = initialSales.map((item) => ({
-      label: item.invoiceNumber || `Sale #${item.salesID}`,
-      value: item.salesID,
-      customerID: item.customerID,
-    }));
-    console.log(options, "filteredSales");
-    setSaleOptions(options);
-        setCustomers(Array.isArray(customerRes.data) ? customerRes.data : customerRes.data?.content || []);
+        const options = initialSales.map((item) => ({
+          label: item.invoiceNumber || `Sale #${item.salesID}`,
+          value: item.salesID,
+          customerID: item.customerID,
+        }));
+        setSaleOptions(options);
+        setCustomers(
+          Array.isArray(customerRes.data) ? customerRes.data : customerRes.data?.content || [],
+        );
       } catch (err) {
         setError('Unable to load dropdown data.');
       }
@@ -125,12 +139,18 @@ console.log(sales,allSales,saleOptions,"ppppppppppppp");
     fetchLookups();
   }, [open]);
 
-
   useEffect(() => {
     if (!open) return;
 
-    const selectedSaleOption = saleOptions.find((option) => option.value === (selectedRecord?.sales?.salesID || selectedRecord?.salesID)) || null;
-    const selectedCustomerOption = customerOptions.find((option) => option.value === (selectedRecord?.customer?.customerID || selectedRecord?.customerID)) || null;
+    const selectedSaleOption =
+      saleOptions.find(
+        (option) => option.value === (selectedRecord?.sales?.salesID || selectedRecord?.salesID),
+      ) || null;
+    const selectedCustomerOption =
+      customerOptions.find(
+        (option) =>
+          option.value === (selectedRecord?.customer?.customerID || selectedRecord?.customerID),
+      ) || null;
 
     if (selectedRecord) {
       reset({
@@ -148,7 +168,6 @@ console.log(sales,allSales,saleOptions,"ppppppppppppp");
       });
     }
   }, [open, selectedRecord, sales, customers, reset]);
-
 
   const onSubmit = async (values) => {
     setLoading(true);
@@ -179,8 +198,17 @@ console.log(sales,allSales,saleOptions,"ppppppppppppp");
 
   return (
     <Box sx={{ bgcolor: isDark ? '#0f172a' : '#f8fafc', p: 2, borderRadius: 2 }}>
-      <Paper elevation={1} sx={{ p: 2, mb: 2, bgcolor: surfaceColor, border: `1px solid ${borderColor}` }}>
-        <Grid container spacing={2} rowSpacing={3} component="form" onSubmit={handleSubmit(onSubmit)}>
+      <Paper
+        elevation={1}
+        sx={{ p: 2, mb: 2, bgcolor: surfaceColor, border: `1px solid ${borderColor}` }}
+      >
+        <Grid
+          container
+          spacing={2}
+          rowSpacing={3}
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <Grid size={{ xs: 12, md: 6 }} />
           <Grid size={{ xs: 12, md: 4 }} />
           <Grid size={{ xs: 12, md: 2 }} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
@@ -188,7 +216,7 @@ console.log(sales,allSales,saleOptions,"ppppppppppppp");
               Close
             </Button>
           </Grid>
-    <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <RhfAutocomplete
               control={control}
               name="customer"
@@ -211,16 +239,8 @@ console.log(sales,allSales,saleOptions,"ppppppppppppp");
             />
           </Grid>
 
-      
-
           <Grid size={{ xs: 12, md: 6 }}>
-            <RhfTextField
-              control={control}
-              name="amount"
-              label="Amount"
-              type="number"
-              required
-            />
+            <RhfTextField control={control} name="amount" label="Amount" type="number" required />
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
@@ -230,13 +250,19 @@ console.log(sales,allSales,saleOptions,"ppppppppppppp");
               label="Receipt Date"
               type="date"
               required
-               slotProps={{
-    inputLabel: { shrink: true } 
-  }} />
+              slotProps={{
+                inputLabel: { shrink: true },
+              }}
+            />
           </Grid>
 
           <Grid size={{ xs: 12 }}>
-            <Button type="submit" variant="contained" startIcon={<SaveIcon />} disabled={isSubmitting || loading}>
+            <Button
+              type="submit"
+              variant="contained"
+              startIcon={<SaveIcon />}
+              disabled={isSubmitting || loading}
+            >
               {loading ? 'Saving...' : selectedRecord ? 'Update Receipt' : 'Save Receipt'}
             </Button>
           </Grid>

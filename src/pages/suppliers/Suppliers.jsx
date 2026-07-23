@@ -55,7 +55,9 @@ export default function Suppliers() {
 
   const handleChangePage = async (event, newPage, rowsPerPageValue) => {
     try {
-      const response = await api.get(`http://localhost:8080/suppliers?pageNumber=${newPage}&pageSize=${rowsPerPageValue}&sortBy=supplierName&sortOrder=asc`);
+      const response = await api.get(
+        `http://localhost:8080/suppliers?pageNumber=${newPage}&pageSize=${rowsPerPageValue}&sortBy=supplierName&sortOrder=asc`,
+      );
       const payload = response?.data?.content ?? [];
       const normalizedSuppliers = Array.isArray(payload) ? payload : [];
       setTotalSuppliers(response?.data?.totalElements ?? 0);
@@ -78,7 +80,9 @@ export default function Suppliers() {
     setPage(0);
     setRowsPerPage(event.target.value);
     try {
-      const response = await api.get(`http://localhost:8080/suppliers?pageNumber=0&pageSize=${event.target.value}&sortBy=supplierName&sortOrder=asc`);
+      const response = await api.get(
+        `http://localhost:8080/suppliers?pageNumber=0&pageSize=${event.target.value}&sortBy=supplierName&sortOrder=asc`,
+      );
       const payload = response?.data?.content ?? [];
       const normalizedSuppliers = Array.isArray(payload) ? payload : [];
       setTotalSuppliers(response?.data?.totalElements ?? 0);
@@ -157,7 +161,11 @@ export default function Suppliers() {
       setShowForm(false);
     } catch (err) {
       console.error('Failed to save supplier:', err);
-      setSubmitError(selectedSupplier ? 'Unable to update the supplier. Please try again.' : 'Unable to add the supplier. Please try again.');
+      setSubmitError(
+        selectedSupplier
+          ? 'Unable to update the supplier. Please try again.'
+          : 'Unable to add the supplier. Please try again.',
+      );
     } finally {
       setSubmitting(false);
     }
@@ -187,10 +195,12 @@ export default function Suppliers() {
 
     try {
       await api.delete(`/suppliers/${supplierId}`);
-      setSuppliers((prev) => prev.filter((current) => {
-        const id = current.supplierID;
-        return id !== supplierId;
-      }));
+      setSuppliers((prev) =>
+        prev.filter((current) => {
+          const id = current.supplierID;
+          return id !== supplierId;
+        }),
+      );
       setTotalSuppliers((prevCount) => Math.max(0, prevCount - 1));
       setSnackbarMessage('Supplier deleted successfully.');
       setSnackbarOpen(true);

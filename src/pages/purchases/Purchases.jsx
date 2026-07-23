@@ -28,17 +28,23 @@ export default function Purchases() {
     itemID: purchase.itemID ?? purchase.item?.itemID ?? purchase.item?.id,
     invoiceNumber: purchase.invoiceNumber ?? purchase.invoiceNo ?? purchase.invoice ?? '-',
     supplierName:
-      purchase.supplierName
-      ?? purchase.supplier?.supplierName
-      ?? purchase.supplier?.name
-      ?? supplierOptions.find((supplier) => supplier.supplierID === (purchase.supplierID ?? purchase.supplier?.supplierID ?? purchase.supplier?.id))?.supplierName
-      ?? '-',
+      purchase.supplierName ??
+      purchase.supplier?.supplierName ??
+      purchase.supplier?.name ??
+      supplierOptions.find(
+        (supplier) =>
+          supplier.supplierID ===
+          (purchase.supplierID ?? purchase.supplier?.supplierID ?? purchase.supplier?.id),
+      )?.supplierName ??
+      '-',
     itemName:
-      purchase.itemName
-      ?? purchase.item?.itemName
-      ?? purchase.item?.name
-      ?? itemOptions.find((item) => item.itemID === (purchase.itemID ?? purchase.item?.itemID ?? purchase.item?.id))?.itemName
-      ?? '-',
+      purchase.itemName ??
+      purchase.item?.itemName ??
+      purchase.item?.name ??
+      itemOptions.find(
+        (item) => item.itemID === (purchase.itemID ?? purchase.item?.itemID ?? purchase.item?.id),
+      )?.itemName ??
+      '-',
     quantity: purchase.quantity ?? '-',
     price: purchase.price ?? purchase.Price ?? '-',
     purchaseDate: purchase.purchaseDate ?? purchase.date ?? '-',
@@ -111,7 +117,9 @@ export default function Purchases() {
 
   const handleChangePage = async (event, newPage, rowsPerPageValue) => {
     try {
-      const response = await api.get(`http://localhost:8080/purchases?pageNumber=${newPage}&pageSize=${rowsPerPageValue}&sortBy=purchaseDate&sortOrder=asc`);
+      const response = await api.get(
+        `http://localhost:8080/purchases?pageNumber=${newPage}&pageSize=${rowsPerPageValue}&sortBy=purchaseDate&sortOrder=asc`,
+      );
       const payload = response?.data?.content ?? [];
       const normalizedPurchases = Array.isArray(payload) ? payload : [];
       setTotalPurchases(response?.data?.totalElements ?? 0);
@@ -128,7 +136,9 @@ export default function Purchases() {
     setRowsPerPage(nextRowsPerPage);
 
     try {
-      const response = await api.get(`http://localhost:8080/purchases?pageNumber=0&pageSize=${nextRowsPerPage}&sortBy=purchaseDate&sortOrder=asc`);
+      const response = await api.get(
+        `http://localhost:8080/purchases?pageNumber=0&pageSize=${nextRowsPerPage}&sortBy=purchaseDate&sortOrder=asc`,
+      );
       const payload = response?.data?.content ?? [];
       const normalizedPurchases = Array.isArray(payload) ? payload : [];
       setTotalPurchases(response?.data?.totalElements ?? 0);
@@ -172,7 +182,11 @@ export default function Purchases() {
       setShowForm(false);
     } catch (err) {
       console.error('Failed to save purchase:', err);
-      setSubmitError(selectedPurchase ? 'Unable to update the purchase. Please try again.' : 'Unable to add the purchase. Please try again.');
+      setSubmitError(
+        selectedPurchase
+          ? 'Unable to update the purchase. Please try again.'
+          : 'Unable to add the purchase. Please try again.',
+      );
     } finally {
       setSubmitting(false);
     }

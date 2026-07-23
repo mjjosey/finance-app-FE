@@ -22,18 +22,40 @@ export default function Payments() {
   const normalizePayment = (payment) => ({
     ...payment,
     paymentID: payment.paymentID ?? payment.id ?? payment.paymentId,
-    purchaseID: payment.purchase?.purchaseID ?? payment.purchaseID ?? payment.purchase?.id ?? payment.purchaseId,
-    supplierID: payment.supplier?.supplierID ?? payment.supplierID ?? payment.supplier?.id ?? payment.supplierId,
+    purchaseID:
+      payment.purchase?.purchaseID ??
+      payment.purchaseID ??
+      payment.purchase?.id ??
+      payment.purchaseId,
+    supplierID:
+      payment.supplier?.supplierID ??
+      payment.supplierID ??
+      payment.supplier?.id ??
+      payment.supplierId,
     purchaseName:
-      payment.purchaseName
-      ?? payment.purchase?.invoiceNumber
-      ?? purchaseOptions.find((option) => option.purchaseID === (payment.purchase?.purchaseID ?? payment.purchaseID ?? payment.purchase?.id ?? payment.purchaseId))?.invoiceNumber
-      ?? '-',
+      payment.purchaseName ??
+      payment.purchase?.invoiceNumber ??
+      purchaseOptions.find(
+        (option) =>
+          option.purchaseID ===
+          (payment.purchase?.purchaseID ??
+            payment.purchaseID ??
+            payment.purchase?.id ??
+            payment.purchaseId),
+      )?.invoiceNumber ??
+      '-',
     supplierName:
-      payment.supplierName
-      ?? payment.supplier?.supplierName
-      ?? supplierOptions.find((option) => option.supplierID === (payment.supplier?.supplierID ?? payment.supplierID ?? payment.supplier?.id ?? payment.supplierId))?.supplierName
-      ?? '-',
+      payment.supplierName ??
+      payment.supplier?.supplierName ??
+      supplierOptions.find(
+        (option) =>
+          option.supplierID ===
+          (payment.supplier?.supplierID ??
+            payment.supplierID ??
+            payment.supplier?.id ??
+            payment.supplierId),
+      )?.supplierName ??
+      '-',
     amount: payment.amount ?? payment.Amount ?? '-',
     paymentDate: payment.paymentDate ?? payment.date ?? '-',
   });
@@ -69,7 +91,11 @@ export default function Payments() {
         (Array.isArray(purchasePayload) ? purchasePayload : [])
           .map((item) => ({
             purchaseID: item.purchaseID ?? item.id,
-            invoiceNumber: item.invoiceNumber ?? item.invoiceNo ?? item.invoice ?? `Purchase #${item.purchaseID ?? item.id}`,
+            invoiceNumber:
+              item.invoiceNumber ??
+              item.invoiceNo ??
+              item.invoice ??
+              `Purchase #${item.purchaseID ?? item.id}`,
           }))
           .filter((item) => item.purchaseID),
       );

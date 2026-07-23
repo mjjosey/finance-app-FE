@@ -11,9 +11,9 @@ export const navItems = [
 ];
 
 export const itemHeaders = [
-  { label: 'Item Name', key: 'itemName',width: "60%" },
-  { label: 'Price', key: 'price',width: "20%" },
-  { label: 'Actions', key: 'actions',width: "20" }
+  { label: 'Item Name', key: 'itemName', width: '60%' },
+  { label: 'Price', key: 'price', width: '20%' },
+  { label: 'Actions', key: 'actions', width: '20' },
 ];
 
 export const customerHeaders = [
@@ -21,7 +21,7 @@ export const customerHeaders = [
   { label: 'Email', key: 'email', width: '25%' },
   { label: 'Mobile', key: 'mobile', width: '15%' },
   { label: 'City', key: 'city', width: '15%' },
-    { label: 'Actions', key: 'actions',width: "20" }
+  { label: 'Actions', key: 'actions', width: '20' },
 ];
 
 export const supplierHeaders = [
@@ -29,7 +29,7 @@ export const supplierHeaders = [
   { label: 'Email', key: 'email', width: '25%' },
   { label: 'Mobile', key: 'mobile', width: '15%' },
   { label: 'City', key: 'city', width: '15%' },
-  { label: 'Actions', key: 'actions', width: '20' }
+  { label: 'Actions', key: 'actions', width: '20' },
 ];
 
 export const salesHeaders = [
@@ -40,7 +40,7 @@ export const salesHeaders = [
   { label: 'Price', key: 'price', width: '20%' },
   { label: 'Sale Date', key: 'saleDate', width: '20%' },
   { label: 'Paid Status', key: 'paidStatus', width: '20%' },
-  { label: 'Actions', key: 'actions', width: '20%' }
+  { label: 'Actions', key: 'actions', width: '20%' },
 ];
 
 export const purchaseHeaders = [
@@ -51,9 +51,9 @@ export const purchaseHeaders = [
   { label: 'Price', key: 'price', width: '20%' },
   { label: 'Purchase Date', key: 'purchaseDate', width: '20%' },
   { label: 'Paid Status', key: 'paidStatus', width: '20%' },
-  { label: 'Actions', key: 'actions', width: '20%' }
+  { label: 'Actions', key: 'actions', width: '20%' },
 ];
- 
+
 export const receiptHeaders = [
   { label: 'Amount', key: 'amount', width: '20%' },
   { label: 'Receipt Date', key: 'receiptDate', width: '20%' },

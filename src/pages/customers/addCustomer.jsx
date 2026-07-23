@@ -37,8 +37,17 @@ const AddCustomer = ({ onSubmit, submitting, submitError, onClose, selectedCusto
 
   return (
     <Box sx={{ bgcolor: isDark ? '#0f172a' : '#f8fafc', p: 2, borderRadius: 2 }}>
-      <Paper elevation={1} sx={{ p: 2, mb: 2, bgcolor: surfaceColor, border: `1px solid ${borderColor}` }}>
-        <Grid container spacing={2} rowSpacing={3} component="form" onSubmit={handleSubmit(onSubmit)}>
+      <Paper
+        elevation={1}
+        sx={{ p: 2, mb: 2, bgcolor: surfaceColor, border: `1px solid ${borderColor}` }}
+      >
+        <Grid
+          container
+          spacing={2}
+          rowSpacing={3}
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <Grid size={{ xs: 12, md: 6 }} />
           <Grid size={{ xs: 12, md: 4 }} />
           <Grid size={{ xs: 12, md: 2 }} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
@@ -54,10 +63,23 @@ const AddCustomer = ({ onSubmit, submitting, submitError, onClose, selectedCusto
           </Grid>
 
           <Grid size={{ xs: 12, md: 3 }}>
-            <RhfTextField name="customerName" control={control} label="Customer Name" required fullWidth />
+            <RhfTextField
+              name="customerName"
+              control={control}
+              label="Customer Name"
+              required
+              fullWidth
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 3 }}>
-            <RhfTextField name="email" control={control} label="Email" type="email" required fullWidth />
+            <RhfTextField
+              name="email"
+              control={control}
+              label="Email"
+              type="email"
+              required
+              fullWidth
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 3 }}>
             <RhfTextField name="mobile" control={control} label="Mobile" required fullWidth />

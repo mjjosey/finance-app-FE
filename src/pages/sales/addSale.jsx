@@ -16,8 +16,10 @@ const AddSale = ({
   itemOptions = [],
   customerOptions = [],
 }) => {
-  const getItemOptionById = (itemId) => itemOptions.find((option) => option.itemID === itemId) ?? null;
-  const getCustomerOptionById = (customerId) => customerOptions.find((option) => option.customerID === customerId) ?? null;
+  const getItemOptionById = (itemId) =>
+    itemOptions.find((option) => option.itemID === itemId) ?? null;
+  const getCustomerOptionById = (customerId) =>
+    customerOptions.find((option) => option.customerID === customerId) ?? null;
 
   const { control, handleSubmit, reset, setValue } = useForm({
     defaultValues: {
@@ -42,7 +44,8 @@ const AddSale = ({
       reset({
         item: getItemOptionById(selectedSale.itemID),
         customer: getCustomerOptionById(selectedSale.customerID),
-        invoiceNumber: selectedSale.invoiceNumber ?? selectedSale.invoiceNo ?? selectedSale.invoice ?? '',
+        invoiceNumber:
+          selectedSale.invoiceNumber ?? selectedSale.invoiceNo ?? selectedSale.invoice ?? '',
         quantity: selectedSale.quantity ?? '',
         price: selectedSale.price ?? selectedSale.Price ?? '',
         saleDate: selectedSale.saleDate ?? '',
@@ -63,22 +66,31 @@ const AddSale = ({
   }, [selectedSale, reset, itemOptions, customerOptions]);
 
   useEffect(() => {
-    console.log(selectedItem,selectedSale, "selectedItem");
-    
+    console.log(selectedItem, selectedSale, 'selectedItem');
+
     if (!selectedItem) return;
 
     const priceFromItem = selectedSale?.price ?? selectedItem?.itemPrice;
-    console.log(priceFromItem, "priceFromItem");
-    
+    console.log(priceFromItem, 'priceFromItem');
+
     if (priceFromItem === undefined || priceFromItem === null || priceFromItem === '') return;
 
     setValue('price', Number(priceFromItem), { shouldValidate: true, shouldDirty: true });
   }, [selectedItem, setValue]);
-console.log(selectedItem,"selectedItem");
+  console.log(selectedItem, 'selectedItem');
   return (
     <Box sx={{ bgcolor: isDark ? '#0f172a' : '#f8fafc', p: 2, borderRadius: 2 }}>
-      <Paper elevation={1} sx={{ p: 2, mb: 2, bgcolor: surfaceColor, border: `1px solid ${borderColor}` }}>
-        <Grid container spacing={2} rowSpacing={3} component="form" onSubmit={handleSubmit(onSubmit)}>
+      <Paper
+        elevation={1}
+        sx={{ p: 2, mb: 2, bgcolor: surfaceColor, border: `1px solid ${borderColor}` }}
+      >
+        <Grid
+          container
+          spacing={2}
+          rowSpacing={3}
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <Grid size={{ xs: 12, md: 6 }} />
           <Grid size={{ xs: 12, md: 4 }} />
           <Grid size={{ xs: 12, md: 2 }} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
@@ -117,19 +129,47 @@ console.log(selectedItem,"selectedItem");
             />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
-            <RhfTextField name="invoiceNumber" control={control} label="Invoice Number" required fullWidth />
+            <RhfTextField
+              name="invoiceNumber"
+              control={control}
+              label="Invoice Number"
+              required
+              fullWidth
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
-            <RhfTextField name="quantity" control={control} label="Quantity" type="number" required fullWidth />
+            <RhfTextField
+              name="quantity"
+              control={control}
+              label="Quantity"
+              type="number"
+              required
+              fullWidth
+            />
           </Grid>
 
           <Grid size={{ xs: 12, md: 4 }}>
-            <RhfTextField name="price" control={control} label="Price" type="number" required fullWidth />
+            <RhfTextField
+              name="price"
+              control={control}
+              label="Price"
+              type="number"
+              required
+              fullWidth
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
-            <RhfTextField name="saleDate" control={control} label="Sale Date" type="date" required fullWidth    slotProps={{
-    inputLabel: { shrink: true } 
-  }} />
+            <RhfTextField
+              name="saleDate"
+              control={control}
+              label="Sale Date"
+              type="date"
+              required
+              fullWidth
+              slotProps={{
+                inputLabel: { shrink: true },
+              }}
+            />
           </Grid>
           {/* <Grid size={{ xs: 12, md: 4 }}>
             <RhfTextField name="paidStatus" control={control} label="Paid Status" required fullWidth />

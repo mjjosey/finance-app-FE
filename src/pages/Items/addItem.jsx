@@ -33,12 +33,27 @@ const AddItem = ({ onSubmit, submitting, submitError, onClose, selectedItem }) =
 
   return (
     <Box sx={{ bgcolor: isDark ? '#0f172a' : '#f8fafc', p: 2, borderRadius: 2 }}>
-      <Paper elevation={1} sx={{ p: 2, mb: 2, bgcolor: surfaceColor, border: `1px solid ${borderColor}` }}>
-        <Grid container spacing={2} rowSpacing={3} component="form" onSubmit={handleSubmit(onSubmit)}>
+      <Paper
+        elevation={1}
+        sx={{ p: 2, mb: 2, bgcolor: surfaceColor, border: `1px solid ${borderColor}` }}
+      >
+        <Grid
+          container
+          spacing={2}
+          rowSpacing={3}
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <Grid size={{ xs: 12, md: 6 }} />
           <Grid size={{ xs: 12, md: 4 }} />
           <Grid size={{ xs: 12, md: 2 }} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
-            <Button variant="text" color="inherit" startIcon={<CloseIcon />} onClick={onClose}    sx={{border:"3px solid red"}}>
+            <Button
+              variant="text"
+              color="inherit"
+              startIcon={<CloseIcon />}
+              onClick={onClose}
+              sx={{ border: '3px solid red' }}
+            >
               Close
             </Button>
           </Grid>
@@ -48,11 +63,24 @@ const AddItem = ({ onSubmit, submitting, submitError, onClose, selectedItem }) =
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
-            <RhfTextField name="price" control={control} label="Price" type="number" required fullWidth />
+            <RhfTextField
+              name="price"
+              control={control}
+              label="Price"
+              type="number"
+              required
+              fullWidth
+            />
           </Grid>
 
           <Grid size={{ xs: 12 }}>
-            <Button type="submit" variant="contained" startIcon={<SaveIcon />} disabled={submitting} sx={{ minWidth: 150, mt: 1 }}>
+            <Button
+              type="submit"
+              variant="contained"
+              startIcon={<SaveIcon />}
+              disabled={submitting}
+              sx={{ minWidth: 150, mt: 1 }}
+            >
               {submitting ? 'Saving...' : selectedItem ? 'Update Item' : 'Save Item'}
             </Button>
           </Grid>

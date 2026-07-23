@@ -31,7 +31,7 @@ export default function ThemeProvider({ children }) {
           },
         },
       }),
-    [mode]
+    [mode],
   );
 
   const value = useMemo(() => ({ mode, toggleThemeMode }), [mode]);

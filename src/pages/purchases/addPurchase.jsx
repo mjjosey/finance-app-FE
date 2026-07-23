@@ -16,8 +16,10 @@ const AddPurchase = ({
   supplierOptions = [],
   itemOptions = [],
 }) => {
-  const getSupplierOptionById = (supplierId) => supplierOptions.find((option) => option.supplierID === supplierId) ?? null;
-  const getItemOptionById = (itemId) => itemOptions.find((option) => option.itemID === itemId) ?? null;
+  const getSupplierOptionById = (supplierId) =>
+    supplierOptions.find((option) => option.supplierID === supplierId) ?? null;
+  const getItemOptionById = (itemId) =>
+    itemOptions.find((option) => option.itemID === itemId) ?? null;
 
   const { control, handleSubmit, reset, setValue } = useForm({
     defaultValues: {
@@ -42,7 +44,11 @@ const AddPurchase = ({
       reset({
         supplier: getSupplierOptionById(selectedPurchase.supplierID),
         item: getItemOptionById(selectedPurchase.itemID),
-        invoiceNumber: selectedPurchase.invoiceNumber ?? selectedPurchase.invoiceNo ?? selectedPurchase.invoice ?? '',
+        invoiceNumber:
+          selectedPurchase.invoiceNumber ??
+          selectedPurchase.invoiceNo ??
+          selectedPurchase.invoice ??
+          '',
         quantity: selectedPurchase.quantity ?? '',
         price: selectedPurchase.price ?? selectedPurchase.Price ?? '',
         purchaseDate: selectedPurchase.purchaseDate ?? '',
@@ -71,8 +77,8 @@ const AddPurchase = ({
     }
 
     const priceFromItem = selectedPurchase
-      ? selectedPurchase.price ?? selectedPurchase.Price
-      : selectedItem.price ?? selectedItem.itemPrice ?? selectedItem.Price;
+      ? (selectedPurchase.price ?? selectedPurchase.Price)
+      : (selectedItem.price ?? selectedItem.itemPrice ?? selectedItem.Price);
 
     if (priceFromItem === undefined || priceFromItem === null || priceFromItem === '') return;
 
@@ -81,8 +87,17 @@ const AddPurchase = ({
 
   return (
     <Box sx={{ bgcolor: isDark ? '#0f172a' : '#f8fafc', p: 2, borderRadius: 2 }}>
-      <Paper elevation={1} sx={{ p: 2, mb: 2, bgcolor: surfaceColor, border: `1px solid ${borderColor}` }}>
-        <Grid container spacing={2} rowSpacing={3} component="form" onSubmit={handleSubmit(onSubmit)}>
+      <Paper
+        elevation={1}
+        sx={{ p: 2, mb: 2, bgcolor: surfaceColor, border: `1px solid ${borderColor}` }}
+      >
+        <Grid
+          container
+          spacing={2}
+          rowSpacing={3}
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <Grid size={{ xs: 12, md: 6 }} />
           <Grid size={{ xs: 12, md: 4 }} />
           <Grid size={{ xs: 12, md: 2 }} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
@@ -90,7 +105,7 @@ const AddPurchase = ({
               Close
             </Button>
           </Grid>
-  <Grid size={{ xs: 12, md: 4 }}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <RhfAutocomplete
               name="item"
               control={control}
@@ -114,14 +129,34 @@ const AddPurchase = ({
             />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
-            <RhfTextField name="invoiceNumber" control={control} label="Invoice Number" required fullWidth />
+            <RhfTextField
+              name="invoiceNumber"
+              control={control}
+              label="Invoice Number"
+              required
+              fullWidth
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
-            <RhfTextField name="quantity" control={control} label="Quantity" type="number" required fullWidth />
+            <RhfTextField
+              name="quantity"
+              control={control}
+              label="Quantity"
+              type="number"
+              required
+              fullWidth
+            />
           </Grid>
 
           <Grid size={{ xs: 12, md: 4 }}>
-            <RhfTextField name="price" control={control} label="Price" type="number" required fullWidth />
+            <RhfTextField
+              name="price"
+              control={control}
+              label="Price"
+              type="number"
+              required
+              fullWidth
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
             <RhfTextField
@@ -131,9 +166,10 @@ const AddPurchase = ({
               type="date"
               required
               fullWidth
-               slotProps={{
-    inputLabel: { shrink: true } 
-  }} />
+              slotProps={{
+                inputLabel: { shrink: true },
+              }}
+            />
           </Grid>
 
           <Grid size={{ xs: 12 }}>

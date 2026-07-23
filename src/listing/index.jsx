@@ -68,10 +68,17 @@ const Listing = ({
 
   const isEmptyObject = (obj) => {
     // Check if the object is empty or contains only empty values
-    return typeof obj === 'object' && obj !== null && !Array.isArray(obj) && Object.keys(obj).length === 0;
+    return (
+      typeof obj === 'object' &&
+      obj !== null &&
+      !Array.isArray(obj) &&
+      Object.keys(obj).length === 0
+    );
   };
   const hasValidValues = (obj = {}) => {
-    return Object.values(obj).some((value) => value !== undefined && value !== null && value !== '');
+    return Object.values(obj).some(
+      (value) => value !== undefined && value !== null && value !== '',
+    );
   };
 
   const hasOnlyEmptyValues = (obj) => {
@@ -83,7 +90,7 @@ const Listing = ({
         value === false ||
         value === 0 ||
         Number.isNaN(value) ||
-        (typeof value === 'object' && hasValidValues(value))
+        (typeof value === 'object' && hasValidValues(value)),
     );
   };
   const cleanObject = (obj) => {
@@ -102,7 +109,7 @@ const Listing = ({
           return false; // Exclude this field
         }
         return true; // Include this field
-      })
+      }),
     );
   };
   const cleanedData = searchArr ? cleanObject(searchArr) : '';
@@ -122,7 +129,7 @@ const Listing = ({
           ordertype,
           searchmode: 1,
           searcharray: JSON.stringify([searchArr]),
-        })
+        }),
       );
       let count = await API.graphql(
         graphqlOperation(queryCount, {
@@ -134,7 +141,7 @@ const Listing = ({
           enddate: endTimeStamp,
           searchmode: 1,
           searcharray: JSON.stringify([searchArr]),
-        })
+        }),
       );
       if (accountid && queryName !== 'listDayBookTransactionDetails') {
         setBodyData((prevItems) => {
@@ -199,8 +206,9 @@ const Listing = ({
                 openingbalance: includeOpeningBalance === true ? 1 : 0,
                 ordertype: order,
                 searchmode: Object.keys(searchArr).length === 0 ? 0 : 1,
-                searcharray: Object.keys(searchArr).length === 0 ? '[]' : JSON.stringify([searchArr]),
-              })
+                searcharray:
+                  Object.keys(searchArr).length === 0 ? '[]' : JSON.stringify([searchArr]),
+              }),
             );
             if (accountid) {
               setBodyData((prevItems) => {
@@ -213,7 +221,7 @@ const Listing = ({
                           ...item,
                           data: [...item.data, ...resActive.data[queryName]],
                         }
-                      : item
+                      : item,
                   );
                 } else {
                   return [
@@ -259,7 +267,7 @@ const Listing = ({
         ordertype: order,
         searchmode: Object.keys(searchArr).length === 0 ? 0 : 1,
         searcharray: Object.keys(searchArr).length === 0 ? '[]' : JSON.stringify([searchArr]),
-      })
+      }),
     );
     if (accountid) {
       setBodyData((prevItems) => {
@@ -272,7 +280,7 @@ const Listing = ({
                   ...item,
                   data: resActive.data[queryName],
                 }
-              : item
+              : item,
           );
         } else {
           return [
@@ -359,7 +367,10 @@ const Listing = ({
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       )}
-      <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={backdropOpen}>
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={backdropOpen}
+      >
         <CircularProgress color="inherit" />
       </Backdrop>
       {/* // </Box> */}

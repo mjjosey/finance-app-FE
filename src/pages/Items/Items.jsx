@@ -22,10 +22,17 @@ export default function Items() {
   const [selectedItem, setSelectedItem] = useState(null);
   const { mode } = useThemeMode();
   const isDark = mode === 'dark';
-  const fetchItems = async (pageNumber = 0, pageSize = 5, sortBy = 'itemName', sortOrder = 'asc') => {
+  const fetchItems = async (
+    pageNumber = 0,
+    pageSize = 5,
+    sortBy = 'itemName',
+    sortOrder = 'asc',
+  ) => {
     try {
       setLoading(true);
-      const response = await api.get(`/items?pageNumber=${pageNumber}&pageSize=${pageSize}&sortBy=${sortBy}&sortOrder=${sortOrder}`);
+      const response = await api.get(
+        `/items?pageNumber=${pageNumber}&pageSize=${pageSize}&sortBy=${sortBy}&sortOrder=${sortOrder}`,
+      );
       const payload = response?.data?.content ?? [];
       const normalizedItems = Array.isArray(payload) ? payload : [];
 
@@ -109,7 +116,11 @@ export default function Items() {
       setShowAddForm(false);
     } catch (err) {
       console.error('Failed to save item:', err);
-      setSubmitError(selectedItem ? 'Unable to update the item. Please try again.' : 'Unable to add the item. Please try again.');
+      setSubmitError(
+        selectedItem
+          ? 'Unable to update the item. Please try again.'
+          : 'Unable to add the item. Please try again.',
+      );
     } finally {
       setSubmitting(false);
     }
@@ -148,56 +159,66 @@ export default function Items() {
       setError('Unable to delete the item. Please try again.');
     }
   };
-  const handleChangePage = async (event, newPage,rowsPerPage) => {
-    console.log(newPage,"new page");
-        try {
-        const response = await api.get(`http://localhost:8080/items?pageNumber=${newPage}&pageSize=${rowsPerPage}&sortBy=itemName&sortOrder=asc`);
-        console.log(response, 'response');
-        
-        const payload = response?.data?.content ??  [];
-        const normalizedItems = Array.isArray(payload) ? payload : [];
-        setTotalItems(response?.data?.totalElements ?? 0);
-        setItems(
-          normalizedItems.map((item) => ({
-            ...item,
-            itemName: item.itemName,
-            price: item.Price
-          })),
-        );
-      } catch (err) {
-        console.error('Failed to fetch items:', err);
-      } 
+  const handleChangePage = async (event, newPage, rowsPerPage) => {
+    console.log(newPage, 'new page');
+    try {
+      const response = await api.get(
+        `http://localhost:8080/items?pageNumber=${newPage}&pageSize=${rowsPerPage}&sortBy=itemName&sortOrder=asc`,
+      );
+      console.log(response, 'response');
+
+      const payload = response?.data?.content ?? [];
+      const normalizedItems = Array.isArray(payload) ? payload : [];
+      setTotalItems(response?.data?.totalElements ?? 0);
+      setItems(
+        normalizedItems.map((item) => ({
+          ...item,
+          itemName: item.itemName,
+          price: item.Price,
+        })),
+      );
+    } catch (err) {
+      console.error('Failed to fetch items:', err);
+    }
     setPage(newPage);
   };
   const handleChangeRowsPerPage = async (event) => {
-    console.log("oooooooooo");
-    
+    console.log('oooooooooo');
+
     setPage(0);
     setRowsPerPage(event.target.value);
-          try {
-        const response = await api.get(`http://localhost:8080/items?pageNumber=0&pageSize=${event.target.value}&sortBy=itemName&sortOrder=asc`);
-        console.log(response, 'response');
-        
-        const payload = response?.data?.content ??  [];
-        const normalizedItems = Array.isArray(payload) ? payload : [];
-         setTotalItems(response?.data?.totalElements ?? 0);
-        setItems(
-          normalizedItems.map((item) => ({
-            ...item,
-            itemName: item.itemName,
-            price: item.Price
-          })),
-        );
-      } catch (err) {
-        console.error('Failed to fetch items:', err);
-      } 
+    try {
+      const response = await api.get(
+        `http://localhost:8080/items?pageNumber=0&pageSize=${event.target.value}&sortBy=itemName&sortOrder=asc`,
+      );
+      console.log(response, 'response');
+
+      const payload = response?.data?.content ?? [];
+      const normalizedItems = Array.isArray(payload) ? payload : [];
+      setTotalItems(response?.data?.totalElements ?? 0);
+      setItems(
+        normalizedItems.map((item) => ({
+          ...item,
+          itemName: item.itemName,
+          price: item.Price,
+        })),
+      );
+    } catch (err) {
+      console.error('Failed to fetch items:', err);
+    }
   };
 
   return (
-      <>
+    <>
       {showAddForm && (
-          <AddItem onSubmit={onSubmit} submitting={submitting} submitError={submitError} onClose={handleCloseAddForm} selectedItem={selectedItem} />
-      ) }
+        <AddItem
+          onSubmit={onSubmit}
+          submitting={submitting}
+          submitError={submitError}
+          onClose={handleCloseAddForm}
+          selectedItem={selectedItem}
+        />
+      )}
 
       <ListingTemplate
         headers={itemHeaders}

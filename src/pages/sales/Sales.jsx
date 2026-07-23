@@ -28,17 +28,23 @@ export default function Sales() {
     customerID: sale.customerID ?? sale.customer?.customerID ?? sale.customer?.id,
     invoiceNumber: sale.invoiceNumber ?? sale.invoiceNo ?? sale.invoice ?? '-',
     itemName:
-      sale.itemName
-      ?? sale.item?.itemName
-      ?? sale.item?.name
-      ?? itemOptions.find((item) => item.itemID === (sale.itemID ?? sale.item?.itemID ?? sale.item?.id))?.itemName
-      ?? '-',
+      sale.itemName ??
+      sale.item?.itemName ??
+      sale.item?.name ??
+      itemOptions.find(
+        (item) => item.itemID === (sale.itemID ?? sale.item?.itemID ?? sale.item?.id),
+      )?.itemName ??
+      '-',
     customerName:
-      sale.customerName
-      ?? sale.customer?.customerName
-      ?? sale.customer?.name
-      ?? customerOptions.find((customer) => customer.customerID === (sale.customerID ?? sale.customer?.customerID ?? sale.customer?.id))?.customerName
-      ?? '-',
+      sale.customerName ??
+      sale.customer?.customerName ??
+      sale.customer?.name ??
+      customerOptions.find(
+        (customer) =>
+          customer.customerID ===
+          (sale.customerID ?? sale.customer?.customerID ?? sale.customer?.id),
+      )?.customerName ??
+      '-',
     quantity: sale.quantity ?? '-',
     price: sale.price ?? sale.Price ?? '-',
     saleDate: sale.saleDate ?? sale.date ?? '-',
@@ -108,7 +114,9 @@ export default function Sales() {
 
   const handleChangePage = async (event, newPage, rowsPerPageValue) => {
     try {
-      const response = await api.get(`http://localhost:8080/sales?pageNumber=${newPage}&pageSize=${rowsPerPageValue}&sortBy=saleDate&sortOrder=asc`);
+      const response = await api.get(
+        `http://localhost:8080/sales?pageNumber=${newPage}&pageSize=${rowsPerPageValue}&sortBy=saleDate&sortOrder=asc`,
+      );
       const payload = response?.data?.content ?? [];
       const normalizedSales = Array.isArray(payload) ? payload : [];
       setTotalSales(response?.data?.totalElements ?? 0);
@@ -125,7 +133,9 @@ export default function Sales() {
     setRowsPerPage(nextRowsPerPage);
 
     try {
-      const response = await api.get(`http://localhost:8080/sales?pageNumber=0&pageSize=${nextRowsPerPage}&sortBy=saleDate&sortOrder=asc`);
+      const response = await api.get(
+        `http://localhost:8080/sales?pageNumber=0&pageSize=${nextRowsPerPage}&sortBy=saleDate&sortOrder=asc`,
+      );
       const payload = response?.data?.content ?? [];
       const normalizedSales = Array.isArray(payload) ? payload : [];
       setTotalSales(response?.data?.totalElements ?? 0);
@@ -144,7 +154,7 @@ export default function Sales() {
       price: Number(data.price),
       quantity: Number(data.quantity),
       saleDate: data.saleDate,
-      paidStatus: data.paidStatus !== "" ? data.paidStatus : "NOT PAID",
+      paidStatus: data.paidStatus !== '' ? data.paidStatus : 'NOT PAID',
       item: {
         itemID: Number(data.item?.itemID),
       },
@@ -180,7 +190,11 @@ export default function Sales() {
       setShowForm(false);
     } catch (err) {
       console.error('Failed to save sale:', err);
-      setSubmitError(selectedSale ? 'Unable to update the sale. Please try again.' : 'Unable to add the sale. Please try again.');
+      setSubmitError(
+        selectedSale
+          ? 'Unable to update the sale. Please try again.'
+          : 'Unable to add the sale. Please try again.',
+      );
     } finally {
       setSubmitting(false);
     }

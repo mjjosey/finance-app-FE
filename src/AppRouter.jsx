@@ -23,19 +23,10 @@ export const navItems = [
 export default function AppRouter() {
   return (
     <Routes>
-      <Route
-        index
-        element={<Typography>Welcome to the dashboard</Typography>}
-      />
+      <Route index element={<Typography>Welcome to the dashboard</Typography>} />
       {navItems.map((item) => {
         const Page = item.component;
-        return (
-          <Route
-            key={item.link}
-            path={item.link.slice(1)}
-            element={<Page />}
-          />
-        );
+        return <Route key={item.link} path={item.link.slice(1)} element={<Page />} />;
       })}
     </Routes>
   );

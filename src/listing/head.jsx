@@ -262,7 +262,10 @@ const Head = ({
               }}
             /> */}
             <DateRangeRsuite
-              value={[searchValues[field.field]?.from ? searchValues[field.field]?.from : null, searchValues[field.field]?.to]} // tuple in ms
+              value={[
+                searchValues[field.field]?.from ? searchValues[field.field]?.from : null,
+                searchValues[field.field]?.to,
+              ]} // tuple in ms
               ranges={[]}
               restrictToFinancialYear={true}
               onChange={(e) => {
@@ -333,7 +336,11 @@ const Head = ({
               disableClearable
               options={field.options}
               isOptionEqualToValue={(option, value) => option == value}
-              clearIcon={searchValues[field.field] && searchValues[field.field] !== '' ? <ClearIcon style={{ fontSize: '20px' }} /> : null}
+              clearIcon={
+                searchValues[field.field] && searchValues[field.field] !== '' ? (
+                  <ClearIcon style={{ fontSize: '20px' }} />
+                ) : null
+              }
               value={searchValues[field.field] || ''}
               onChange={(e, value) =>
                 setSearchValues((prev) => ({
@@ -473,7 +480,7 @@ const Head = ({
         accountid,
         searchmode: 0,
         searcharray: '[]',
-      })
+      }),
     );
     console.log(resActive, 'resActive');
     let count = await API.graphql(
@@ -485,7 +492,7 @@ const Head = ({
         ordertype,
         searchmode: 0,
         searcharray: '[]',
-      })
+      }),
     );
     if (accountid) {
       setBodyData((prevItems) => {
@@ -700,7 +707,10 @@ const Head = ({
           ))}
         </TableRow>
       )}
-      <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={backdropOpen}>
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={backdropOpen}
+      >
         <CircularProgress color="inherit" />
       </Backdrop>
     </TableHead>

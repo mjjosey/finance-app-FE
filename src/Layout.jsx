@@ -46,7 +46,8 @@ export default function Layout(props) {
               sx={{
                 textAlign: 'center',
                 borderRadius: 1,
-                backgroundColor: location.pathname === item.link ? 'rgba(25,118,210,0.16)' : 'transparent',
+                backgroundColor:
+                  location.pathname === item.link ? 'rgba(25,118,210,0.16)' : 'transparent',
                 color: location.pathname === item.link ? '#1d4ed8' : 'inherit',
                 fontWeight: location.pathname === item.link ? 700 : 500,
                 boxShadow: location.pathname === item.link ? 'inset 0 -2px 0 #1d4ed8' : 'none',
@@ -145,7 +146,7 @@ export default function Layout(props) {
           {drawer}
         </Drawer>
       </nav>
-      <Box component="main" sx={{ p: 3, width:"100%" }}>
+      <Box component="main" sx={{ p: 3, width: '100%' }}>
         <Toolbar />
         <AppRouter />
       </Box>

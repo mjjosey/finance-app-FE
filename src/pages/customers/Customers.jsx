@@ -51,53 +51,57 @@ export default function Customers() {
   useEffect(() => {
     fetchCustomers();
   }, []);
- const handleChangePage = async (event, newPage,rowsPerPage) => {
-    console.log(newPage,"new page");
-        try {
-        const response = await api.get(`http://localhost:8080/customers?pageNumber=${newPage}&pageSize=${rowsPerPage}&sortBy=customerName&sortOrder=asc`);
-        console.log(response, 'response');
-        
-        const payload = response?.data?.content ??  [];
-        const normalizedItems = Array.isArray(payload) ? payload : [];
-        setTotalCustomers(response?.data?.totalElements ?? 0);
-        setCustomers(
-          normalizedItems.map((item) => ({
-            ...item,
-            customerName: item.customerName ?? item.name ?? 'Unknown Customer',
-            email: item.email ?? item.emailAddress ?? '-',
-            mobile: item.mobile ?? item.mobileNumber ?? item.phone ?? '-',
-            city: item.city ?? item.address?.city ?? '-'
-          })),
-        );
-      } catch (err) {
-        console.error('Failed to fetch items:', err);
-      } 
+  const handleChangePage = async (event, newPage, rowsPerPage) => {
+    console.log(newPage, 'new page');
+    try {
+      const response = await api.get(
+        `http://localhost:8080/customers?pageNumber=${newPage}&pageSize=${rowsPerPage}&sortBy=customerName&sortOrder=asc`,
+      );
+      console.log(response, 'response');
+
+      const payload = response?.data?.content ?? [];
+      const normalizedItems = Array.isArray(payload) ? payload : [];
+      setTotalCustomers(response?.data?.totalElements ?? 0);
+      setCustomers(
+        normalizedItems.map((item) => ({
+          ...item,
+          customerName: item.customerName ?? item.name ?? 'Unknown Customer',
+          email: item.email ?? item.emailAddress ?? '-',
+          mobile: item.mobile ?? item.mobileNumber ?? item.phone ?? '-',
+          city: item.city ?? item.address?.city ?? '-',
+        })),
+      );
+    } catch (err) {
+      console.error('Failed to fetch items:', err);
+    }
     setPage(newPage);
   };
   const handleChangeRowsPerPage = async (event) => {
-    console.log("oooooooooo");
-    
+    console.log('oooooooooo');
+
     setPage(0);
     setRowsPerPage(event.target.value);
-          try {
-        const response = await api.get(`http://localhost:8080/customers?pageNumber=0&pageSize=${event.target.value}&sortBy=customerName&sortOrder=asc`);
-        console.log(response, 'response');
-        
-        const payload = response?.data?.content ??  [];
-        const normalizedItems = Array.isArray(payload) ? payload : [];
-        setTotalCustomers(response?.data?.totalElements ?? 0);
-        setCustomers(
-          normalizedItems.map((item) => ({
-            ...item,
-            customerName: item.customerName ?? item.name ?? 'Unknown Customer',
-            email: item.email ?? item.emailAddress ?? '-',
-            mobile: item.mobile ?? item.mobileNumber ?? item.phone ?? '-',
-            city: item.city ?? item.address?.city ?? '-'
-          })),
-        );
-      } catch (err) {
-        console.error('Failed to fetch items:', err);
-      } 
+    try {
+      const response = await api.get(
+        `http://localhost:8080/customers?pageNumber=0&pageSize=${event.target.value}&sortBy=customerName&sortOrder=asc`,
+      );
+      console.log(response, 'response');
+
+      const payload = response?.data?.content ?? [];
+      const normalizedItems = Array.isArray(payload) ? payload : [];
+      setTotalCustomers(response?.data?.totalElements ?? 0);
+      setCustomers(
+        normalizedItems.map((item) => ({
+          ...item,
+          customerName: item.customerName ?? item.name ?? 'Unknown Customer',
+          email: item.email ?? item.emailAddress ?? '-',
+          mobile: item.mobile ?? item.mobileNumber ?? item.phone ?? '-',
+          city: item.city ?? item.address?.city ?? '-',
+        })),
+      );
+    } catch (err) {
+      console.error('Failed to fetch items:', err);
+    }
   };
   const onSubmit = async (data) => {
     setSubmitting(true);
@@ -105,7 +109,7 @@ export default function Customers() {
 
     try {
       if (selectedCustomer) {
-        const customerId = selectedCustomer.customerID ;
+        const customerId = selectedCustomer.customerID;
         const response = await api.put(`/customers/${customerId}`, {
           customerName: data.customerName,
           email: data.email,
@@ -160,7 +164,11 @@ export default function Customers() {
       setShowForm(false);
     } catch (err) {
       console.error('Failed to save customer:', err);
-      setSubmitError(selectedCustomer ? 'Unable to update the customer. Please try again.' : 'Unable to add the customer. Please try again.');
+      setSubmitError(
+        selectedCustomer
+          ? 'Unable to update the customer. Please try again.'
+          : 'Unable to add the customer. Please try again.',
+      );
     } finally {
       setSubmitting(false);
     }
@@ -190,10 +198,12 @@ export default function Customers() {
 
     try {
       await api.delete(`/customers/${customerId}`);
-      setCustomers((prev) => prev.filter((current) => {
-        const id = current.customerID;
-        return id !== customerId;
-      }));
+      setCustomers((prev) =>
+        prev.filter((current) => {
+          const id = current.customerID;
+          return id !== customerId;
+        }),
+      );
       setTotalCustomers((prevCount) => Math.max(0, prevCount - 1));
       setSnackbarMessage('Customer deleted successfully.');
       setSnackbarOpen(true);
@@ -219,13 +229,13 @@ export default function Customers() {
         headers={customerHeaders}
         rows={customers}
         count={totalCustomers}
-         pageName="Customer"
-         page={page}
-         rowsPerPage={rowsPerPage}
-                setRowsPerPage={setRowsPerPage}
-                setPage={setPage}
+        pageName="Customer"
+        page={page}
+        rowsPerPage={rowsPerPage}
+        setRowsPerPage={setRowsPerPage}
+        setPage={setPage}
         handleChangePage={handleChangePage}
-                handleChangeRowsPerPage={handleChangeRowsPerPage}
+        handleChangeRowsPerPage={handleChangeRowsPerPage}
         onAdd={handleOpenForm}
         onView={handleViewCustomer}
         onDelete={handleDeleteCustomer}

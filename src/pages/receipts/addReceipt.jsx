@@ -74,14 +74,14 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
   );
 
   const fetchCustomerSales = async (customerId) => {
-    if (!customerId ) {
+    if (!customerId) {
       setSales(allSales);
       return;
     }
 
     try {
       const response = await axios.get(`/sales/${customerId}`);
-      const payload = response?.data?.content ?? [];
+      const payload = response?.data?.content ?? response?.data ?? [];
       const normalizedCustomerSales = Array.isArray(payload) ? payload : [];
       setSales(normalizedCustomerSales);
 
@@ -102,7 +102,7 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
   }, [selectedCustomerId, allSales]);
 
   useEffect(() => {
-    if (!open || !selectedSale?.customerID) return;
+    if (!open) return;
 
     const fetchLookups = async () => {
       try {
@@ -111,14 +111,14 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
           axios.get('/customers'),
         ]);
 
-        const initialSales = Array.isArray(saleRes.data)
-          ? saleRes.data
-          : saleRes.data?.content || [];
+        const salesPayload = saleRes?.data?.content ?? saleRes?.data ?? [];
+        const customerPayload = customerRes?.data?.content ?? customerRes?.data ?? [];
+        const initialSales = Array.isArray(salesPayload) ? salesPayload : [];
+        const initialCustomers = Array.isArray(customerPayload) ? customerPayload : [];
+
         setAllSales(initialSales);
         setSales(initialSales);
-        setCustomers(
-          Array.isArray(customerRes.data) ? customerRes.data : customerRes.data?.content || [],
-        );
+        setCustomers(initialCustomers);
       } catch (err) {
         setError('Unable to load dropdown data.');
       }

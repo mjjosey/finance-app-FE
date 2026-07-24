@@ -103,7 +103,7 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
   };
 
   useEffect(() => {
-    if (!open || !selectedPurchase?.supplierID) return;
+    if (!open ) return;
 
     const fetchLookups = async () => {
       try {
@@ -112,14 +112,14 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
           axios.get('suppliers'),
         ]);
 
-        const initialPurchases = Array.isArray(purchaseRes.data)
-          ? purchaseRes.data
-          : purchaseRes.data?.content || [];
+        const purchasePayload = purchaseRes?.data?.content ?? purchaseRes?.data ?? [];
+        const supplierPayload = supplierRes?.data?.content ?? supplierRes?.data ?? [];
+        const initialPurchases = Array.isArray(purchasePayload) ? purchasePayload : [];
+        const initialSuppliers = Array.isArray(supplierPayload) ? supplierPayload : [];
+
         setAllPurchases(initialPurchases);
         setPurchases(initialPurchases);
-        setSuppliers(
-          Array.isArray(supplierRes.data) ? supplierRes.data : supplierRes.data?.content || [],
-        );
+        setSuppliers(initialSuppliers);
       } catch (err) {
         setError('Unable to load dropdown data.');
       }
@@ -197,7 +197,8 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
       purchase: selectedPurchaseOption,
       supplier: selectedSupplierOption,
     });
-  }, [open, selectedRecord, purchaseOptions, supplierOptions, reset]);
+  }, [open, selectedRecord, reset]);
+console.log(selectedRecord,"selecred");
 
   useEffect(() => {
     if (!open || selectedRecord) return;
@@ -208,11 +209,12 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
     if (selectedPurchase && selectedPurchase.value) {
       setValue('purchase', selectedPurchase);
     }
-  }, [open, selectedRecord, selectedSupplier, selectedPurchase, setValue]);
+  }, [open, selectedRecord, setValue]);
 
   const onSubmit = async (values) => {
     setLoading(true);
     setError('');
+console.log(values,"values");
 
     const payload = {
       amount: Number(values.amount),

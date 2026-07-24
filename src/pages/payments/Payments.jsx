@@ -68,43 +68,7 @@ useEffect(() => {
     fetchPayments(page, rowsPerPage);
   }, [refreshKey]);
 
-  const fetchPaymentFormOptions = async () => {
-    try {
-      const [purchaseRes, supplierRes] = await Promise.all([
-        axios.get('/purchases?pageNumber=0&pageSize=200&sortBy=invoiceNumber&sortOrder=asc'),
-        axios.get('/suppliers?pageNumber=0&pageSize=200&sortBy=supplierName&sortOrder=asc'),
-      ]);
 
-      const purchasePayload = purchaseRes?.data?.content ?? [];
-      const supplierPayload = supplierRes?.data?.content ?? [];
-
-      setPurchaseOptions(
-        (Array.isArray(purchasePayload) ? purchasePayload : [])
-          .map((item) => ({
-            purchaseID: item.purchaseID ?? item.id,
-            invoiceNumber: item.invoiceNumber ?? item.invoiceNo ?? item.invoice ?? `Purchase #${item.purchaseID ?? item.id}`,
-          }))
-          .filter((item) => item.purchaseID),
-      );
-
-      setSupplierOptions(
-        (Array.isArray(supplierPayload) ? supplierPayload : [])
-          .map((item) => ({
-            supplierID: item.supplierID ?? item.id,
-            supplierName: item.supplierName ?? item.name,
-          }))
-          .filter((item) => item.supplierID),
-      );
-    } catch (err) {
-      console.error('Failed to fetch payment dropdown options:', err);
-    }
-  };
-
-  useEffect(() => {
-    if (showForm) {
-      fetchPaymentFormOptions();
-    }
-  }, [showForm]);
 
   useEffect(() => {
     fetchPayments(0, rowsPerPage);

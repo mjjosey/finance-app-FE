@@ -32,7 +32,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await api.post('/api/auth/signin', {
+      const response = await api.post('/auth/signin', {
         username: values.username,
         password: values.password,
       });

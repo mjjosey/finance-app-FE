@@ -108,8 +108,8 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
     const fetchLookups = async () => {
       try {
         const [purchaseRes, supplierRes] = await Promise.all([
-          axios.get('/purchases'),
-          axios.get('/suppliers'),
+          axios.get('purchases'),
+          axios.get('suppliers'),
         ]);
 
         const initialPurchases = Array.isArray(purchaseRes.data)

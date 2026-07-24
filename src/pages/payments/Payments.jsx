@@ -57,13 +57,26 @@ export default function Payments() {
       setTotalPayments(response?.data?.totalElements ?? normalizedPayments.length);
       setError('');
     } catch (err) {
-      console.error('Failed to fetch payments:', err);
-      setError('Unable to load payments right now.');
+      const responseMessage =
+        err?.response?.data?.message ?? err?.response?.data ?? err?.message ?? '';
+      const isEmptyPaymentsResponse =
+        typeof responseMessage === 'string' &&
+        /no\s+payments\s+created\s+till\s+now\.?/i.test(responseMessage);
+
+      if (isEmptyPaymentsResponse) {
+        setPayments([]);
+        setTotalPayments(0);
+        setError('');
+      } else {
+        console.error('Failed to fetch payments:', err);
+        setError('Unable to load payments right now.');
+      }
     } finally {
       setLoading(false);
     }
   };
-useEffect(() => {
+
+  useEffect(() => {
     if (!refreshKey) return;
     fetchPayments(page, rowsPerPage);
   }, [refreshKey]);

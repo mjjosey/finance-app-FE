@@ -49,8 +49,20 @@ export default function Receipts() {
       setTotalReceipts(response?.data?.totalElements ?? normalizedReceipts.length);
       setError('');
     } catch (err) {
-      console.error('Failed to fetch receipts:', err);
-      setError('Unable to load receipts right now.');
+      const responseMessage =
+        err?.response?.data?.message ?? err?.response?.data ?? err?.message ?? '';
+      const isEmptyReceiptsResponse =
+        typeof responseMessage === 'string' &&
+        /no\s+receipts\s+created\s+till\s+now\.?/i.test(responseMessage);
+
+      if (isEmptyReceiptsResponse) {
+        setReceipts([]);
+        setTotalReceipts(0);
+        setError('');
+      } else {
+        console.error('Failed to fetch receipts:', err);
+        setError('Unable to load receipts right now.');
+      }
     } finally {
       setLoading(false);
     }

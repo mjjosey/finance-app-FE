@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import AppRouter, { navItems } from './AppRouter';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -19,16 +19,25 @@ import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { drawerWidth } from './constants';
 import { useThemeMode } from './ThemeProvider';
+import { TOKEN_STORAGE_KEY } from './api/axios';
 
 export default function Layout(props) {
   const { window } = props;
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const { mode, toggleThemeMode } = useThemeMode();
   const isDark = mode === 'dark';
+  const isAuthRoute = location.pathname === '/login' || location.pathname === '/signup';
+  const hasToken = Boolean(localStorage.getItem(TOKEN_STORAGE_KEY));
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    navigate('/login', { replace: true });
   };
 
   const drawer = (
@@ -73,6 +82,15 @@ export default function Layout(props) {
   );
 
   const container = window !== undefined ? () => window().document.body : undefined;
+
+  if (isAuthRoute) {
+    return (
+      <Box sx={{ minHeight: '100vh' }}>
+        <CssBaseline />
+        <AppRouter />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -128,6 +146,19 @@ export default function Layout(props) {
             >
               {isDark ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
+            {hasToken ? (
+              <Button
+                onClick={handleLogout}
+                sx={{
+                  color: '#fff',
+                  borderRadius: 1,
+                  textTransform: 'none',
+                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.15)' },
+                }}
+              >
+                Logout
+              </Button>
+            ) : null}
           </Box>
         </Toolbar>
       </AppBar>

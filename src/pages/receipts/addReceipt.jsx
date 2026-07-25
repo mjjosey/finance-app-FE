@@ -100,7 +100,9 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
   useEffect(() => {
     fetchCustomerSales(selectedCustomerId);
   }, [selectedCustomerId, allSales]);
-
+const filterFullyPaidSales = () => {
+    return sales.filter((sale) => sale.paidStatus !== 'Fully Paid');
+  };
   useEffect(() => {
     if (!open) return;
 
@@ -261,7 +263,7 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
               control={control}
               name="sale"
               label="Sale"
-              options={saleOptions}
+              options={open ? filterFullyPaidSales() : saleOptions}
               getOptionLabel={(option) => option?.label ?? ''}
               isOptionEqualToValue={(option, value) => option?.value === value?.value}
               required

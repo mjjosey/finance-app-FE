@@ -199,7 +199,9 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
     });
   }, [open, selectedRecord, reset]);
 console.log(selectedRecord,"selecred");
-
+const filterFullyPaidPurchases = () => {
+    return purchases.filter((purchase) => purchase.paidStatus !== 'Fully Paid');
+  } 
   useEffect(() => {
     if (!open || selectedRecord) return;
 
@@ -275,7 +277,7 @@ console.log(values,"values");
               control={control}
               name="purchase"
               label="Purchase"
-              options={purchaseOptions}
+              options={open ? filterFullyPaidPurchases() : purchaseOptions}
               getOptionLabel={(option) => option?.label ?? ''}
               isOptionEqualToValue={(option, value) => option?.value === value?.value}
               required

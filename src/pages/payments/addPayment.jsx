@@ -200,7 +200,11 @@ export default function AddPayment({ open, onClose, selectedRecord, onSaved }) {
   }, [open, selectedRecord, reset]);
 console.log(selectedRecord,"selecred");
 const filterFullyPaidPurchases = () => {
-    return purchases.filter((purchase) => purchase.paidStatus !== 'Fully Paid');
+    return purchases.filter((purchase) => purchase.paidStatus !== 'Fully Paid').map((item) => ({
+        label: item.invoiceNumber || `Purchase #${item.purchaseID}`,
+        value: item.purchaseID,
+        supplierID: item.supplierID,
+      }));
   } 
   useEffect(() => {
     if (!open || selectedRecord) return;

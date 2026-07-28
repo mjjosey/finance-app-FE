@@ -101,7 +101,11 @@ export default function AddReceipt({ open, onClose, selectedRecord, onSaved }) {
     fetchCustomerSales(selectedCustomerId);
   }, [selectedCustomerId, allSales]);
 const filterFullyPaidSales = () => {
-    return sales.filter((sale) => sale.paidStatus !== 'Fully Paid');
+    return sales.filter((sale) => sale.paidStatus !== 'Fully Paid').map((item) => ({
+        label: item.invoiceNumber || `Sale #${item.salesID}`,
+        value: item.salesID,
+        customerID: item.customerID,
+      }));
   };
   useEffect(() => {
     if (!open) return;

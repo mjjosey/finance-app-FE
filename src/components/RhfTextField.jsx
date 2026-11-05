@@ -8,6 +8,7 @@ export default function RhfTextField({
   slotProps,
   type = 'text',
   required = false,
+  rules = {},
   fullWidth = true,
   ...rest
 }) {
@@ -16,7 +17,7 @@ export default function RhfTextField({
       name={name}
       control={control}
 
-      rules={{ required: required ? `${label} is required` : false }}
+      rules={{ required: required ? `${label} is required` : false, ...rules }}
       render={({ field, fieldState: { error } }) => (
         <TextField
           {...field}

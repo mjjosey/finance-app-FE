@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Box,
   Button,
   IconButton,
+  CircularProgress,
   Paper,
   Pagination,
   Select,
@@ -30,6 +31,18 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { useThemeMode } from '../ThemeProvider';
 import api from '../api/axios';
 
+const getRowKey = (row, index, pageName) =>
+  row?.receiptID ??
+  row?.paymentID ??
+  row?.purchaseID ??
+  row?.saleID ??
+  row?.salesID ??
+  row?.id ??
+  row?.supplierID ??
+  row?.customerID ??
+  row?.itemID ??
+  `${pageName}-${index}`;
+
 export default function ListingTemplate({
   headers = [],
   pageName,
@@ -47,6 +60,21 @@ export default function ListingTemplate({
   count,
 }) {
   const { mode, toggleThemeMode } = useThemeMode();
+  const pendingDeletes = useRef(new Set());
+  const [deletingRows, setDeletingRows] = useState(new Set());
+
+  const handleDelete = async (row, rowKey) => {
+    if (!onDelete || pendingDeletes.current.has(rowKey)) return;
+
+    pendingDeletes.current.add(rowKey);
+    setDeletingRows(new Set(pendingDeletes.current));
+    try {
+      await onDelete(row);
+    } finally {
+      pendingDeletes.current.delete(rowKey);
+      setDeletingRows(new Set(pendingDeletes.current));
+    }
+  };
   const isDark = mode === 'dark';
   const surfaceColor = isDark ? '#121212' : '#ffffff';
   const borderColor = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)';
@@ -118,18 +146,7 @@ export default function ListingTemplate({
           <TableBody>
             {rows.map((row, index) => (
               <TableRow
-                key={
-                  row?.receiptID ??
-                  row?.paymentID ??
-                  row?.purchaseID ??
-                  row?.saleID ??
-                  row?.salesID ??
-                  row?.id ??
-                  row?.supplierID ??
-                  row?.customerID ??
-                  row?.itemID ??
-                  `${pageName}-${index}`
-                }
+                key={getRowKey(row, index, pageName)}
                 hover
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
               >
@@ -141,11 +158,23 @@ export default function ListingTemplate({
                           size="small"
                           color={isDark ? 'secondary' : 'primary'}
                           onClick={() => handleEdit?.(row)}
+                          disabled={deletingRows.has(getRowKey(row, index, pageName))}
                         >
                           <EditIcon fontSize="small" />
                         </IconButton>
-                        <IconButton size="small" color="error" onClick={() => onDelete?.(row)}>
-                          <DeleteIcon fontSize="small" />
+                        <IconButton
+                          size="small"
+                          color="error"
+                          aria-label={deletingRows.has(getRowKey(row, index, pageName)) ? 'Deleting' : 'Delete'}
+                          aria-busy={deletingRows.has(getRowKey(row, index, pageName))}
+                          disabled={!onDelete || deletingRows.has(getRowKey(row, index, pageName))}
+                          onClick={() => handleDelete(row, getRowKey(row, index, pageName))}
+                        >
+                          {deletingRows.has(getRowKey(row, index, pageName)) ? (
+                            <CircularProgress size={20} color="error" aria-label="Deleting record" />
+                          ) : (
+                            <DeleteIcon fontSize="small" />
+                          )}
                         </IconButton>
                       </Stack>
                     ) : (
